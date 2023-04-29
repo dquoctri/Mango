@@ -3,7 +3,7 @@
  * All rights reserved or may not! :)
  */
 
-package com.dqtri.mango.authentication.utils;
+package com.dqtri.mango.common.util;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;

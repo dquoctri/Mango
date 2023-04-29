@@ -1,6 +1,7 @@
 package com.dqtri.mango.authentication.models;
 
 import com.dqtri.mango.authentication.models.enums.Role;
+import com.dqtri.mango.common.model.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
