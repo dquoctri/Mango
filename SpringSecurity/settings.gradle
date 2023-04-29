@@ -1,0 +1,5 @@
+rootProject.name = 'SpringSecurity'
+
+include 'Common'
+include 'Authentication'
+include 'services:ServiceApi'
