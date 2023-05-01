@@ -3,7 +3,7 @@
  * All rights reserved or may not! :)
  */
 
-package com.dqtri.mango.authentication.controllers;
+package com.dqtri.mango.authentication.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -22,5 +22,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleAuthenticationException(Exception e, WebRequest request) {
         log.error(e.getMessage(), e);
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Object> handleApplicationException(Exception e, WebRequest request) {
+        log.error(e.getMessage(), e);
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

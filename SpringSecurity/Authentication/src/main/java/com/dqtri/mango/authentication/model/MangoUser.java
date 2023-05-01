@@ -1,6 +1,6 @@
-package com.dqtri.mango.authentication.models;
+package com.dqtri.mango.authentication.model;
 
-import com.dqtri.mango.authentication.models.enums.Role;
+import com.dqtri.mango.authentication.model.enums.Role;
 import com.dqtri.mango.common.model.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
@@ -9,11 +9,12 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity
-@Table(name = "dln_user")
+
 @Setter
 @Getter
-public class DlnUser extends BaseEntity {
+@Entity
+@Table(name = "mango_user")
+public class MangoUser extends BaseEntity {
 
     @Column(name = "email", length = 320, nullable = false, unique = true)
     private String email;
@@ -22,10 +23,6 @@ public class DlnUser extends BaseEntity {
     private Role role;
 
     @JsonIgnore
-    @Column(name = "hash_password", length = 100, nullable = false)
-    private String hashPassword;
-
-    @JsonIgnore
-    @Column(name = "salt", length = 15, nullable = false)
-    private String salt;
+    @Column(name = "password", length = 60, nullable = false)
+    private String password;
 }

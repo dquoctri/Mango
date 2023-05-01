@@ -5,8 +5,8 @@
 
 package com.dqtri.mango.authentication.security.models;
 
-import com.dqtri.mango.authentication.models.DlnUser;
-import com.dqtri.mango.authentication.models.enums.Role;
+import com.dqtri.mango.authentication.model.MangoUser;
+import com.dqtri.mango.authentication.model.enums.Role;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -23,14 +23,14 @@ import java.util.List;
 public class DlnUserDetails extends User implements UserDetails {
 
     @NonNull
-    private DlnUser user;
+    private MangoUser user;
 
-    public DlnUserDetails(@NonNull DlnUser user, Collection<? extends GrantedAuthority> authorities) {
-        super(user.getEmail(), "", authorities);
+    public DlnUserDetails(@NonNull MangoUser user, Collection<? extends GrantedAuthority> authorities) {
+        super(user.getEmail(), user.getPassword(), authorities);
         this.user = user;
     }
 
-    public static DlnUserDetails create(DlnUser user) {
+    public static DlnUserDetails create(MangoUser user) {
         List<SimpleGrantedAuthority> authorities = createAuthoritiesWithRole(user.getRole());
         return new DlnUserDetails(user, authorities);
     }

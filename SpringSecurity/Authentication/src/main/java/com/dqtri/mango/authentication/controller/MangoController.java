@@ -3,7 +3,8 @@
  * All rights reserved or may not! :)
  */
 
-package com.dqtri.mango.authentication.controllers;
+package com.dqtri.mango.authentication.controller;
+
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,11 +14,10 @@ import java.util.List;
 
 @AllArgsConstructor
 @RestController
-public class AuthController {
+public class MangoController {
 
-
-    @GetMapping("/login")
-    List<String> login() {
+    @GetMapping("/mango")
+    List<String> mango() {
         return List.of("payload1a", "payload1b");
     }
 }

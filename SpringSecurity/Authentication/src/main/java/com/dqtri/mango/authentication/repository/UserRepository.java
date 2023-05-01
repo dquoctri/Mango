@@ -3,15 +3,15 @@
  * All rights reserved or may not! :)
  */
 
-package com.dqtri.mango.authentication.repositories;
+package com.dqtri.mango.authentication.repository;
 
-import com.dqtri.mango.authentication.models.DlnUser;
+import com.dqtri.mango.authentication.model.MangoUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface DlnUserRepository extends JpaRepository<DlnUser, Long> {
-    Optional<DlnUser> findByEmail(String email);
+public interface UserRepository extends JpaRepository<MangoUser, Long> {
+    Optional<MangoUser> findByEmail(String email);
 }
