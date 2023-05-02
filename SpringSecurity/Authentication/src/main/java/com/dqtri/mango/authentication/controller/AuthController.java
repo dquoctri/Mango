@@ -40,7 +40,7 @@ public class AuthController {
     private final UserRepository userRepository;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody @Valid LoginPayload login) {
+    public ResponseEntity<?> login(@RequestBody @Valid LoginPayload login) throws Exception {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(login.getEmail(), login.getPassword())
         );

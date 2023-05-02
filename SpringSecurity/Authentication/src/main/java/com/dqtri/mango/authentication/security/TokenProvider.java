@@ -9,5 +9,5 @@ import com.dqtri.mango.authentication.security.models.TokenResponse;
 import org.springframework.security.core.Authentication;
 
 public interface TokenProvider {
-    TokenResponse generateToken(Authentication authentication);
+    TokenResponse generateToken(Authentication authentication) throws Exception;
 }

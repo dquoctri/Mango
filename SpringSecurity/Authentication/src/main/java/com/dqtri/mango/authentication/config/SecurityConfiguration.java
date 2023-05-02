@@ -6,7 +6,6 @@
 package com.dqtri.mango.authentication.config;
 
 import com.dqtri.mango.authentication.repository.UserRepository;
-import com.dqtri.mango.authentication.security.CustomUserDetailsService;
 import com.dqtri.mango.authentication.security.MyCustomDsl;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +44,7 @@ public class SecurityConfiguration {
     @Order(1)
     public SecurityFilterChain securityAnonymousFilterChain(HttpSecurity http) throws Exception {
         // @formatter:off
-        http
+        http.csrf().disable()
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/register", "/login").permitAll()
                         .anyRequest().authenticated()
@@ -56,11 +55,11 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    @Order(0)
+    @Order(2)
     public SecurityFilterChain securityFormFilterChain(HttpSecurity http) throws Exception {
         // @formatter:off
         http
-                .csrf().disable()
+
                 .formLogin().disable()
                 .httpBasic().disable()
                 .logout().disable();
