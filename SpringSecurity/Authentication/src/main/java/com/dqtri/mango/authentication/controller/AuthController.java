@@ -14,7 +14,6 @@ import com.dqtri.mango.authentication.security.TokenProvider;
 import com.dqtri.mango.authentication.security.models.TokenResponse;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,12 +21,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.net.URI;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -61,17 +58,17 @@ public class AuthController {
     }
 
     @PostMapping("forgot_password")
-    public ResponseEntity<?> forgotPassword(){
+    public ResponseEntity<?> forgotPassword() {
         return ResponseEntity.ok(List.of("payload1a", "payload1b"));
     }
 
     @PostMapping("reset_password")
-    public ResponseEntity<?> resetPassword(){
+    public ResponseEntity<?> resetPassword() {
         return ResponseEntity.ok(List.of("payload1a", "payload1b"));
     }
 
     @PostMapping("change_password")
-    public ResponseEntity<?> changePassword(){
+    public ResponseEntity<?> changePassword() {
         return ResponseEntity.ok(List.of("payload1a", "payload1b"));
     }
 }

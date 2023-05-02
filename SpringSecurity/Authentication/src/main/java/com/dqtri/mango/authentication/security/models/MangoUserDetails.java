@@ -31,8 +31,8 @@ public class MangoUserDetails extends User implements UserDetails {
     public static MangoUserDetails create(MangoUser user) {
         return new MangoUserDetails(user);
     }
-    
-    private static List<SimpleGrantedAuthority> createAuthoritiesWithRole(Role role){
+
+    private static List<SimpleGrantedAuthority> createAuthoritiesWithRole(Role role) {
         return List.of(
                 new SimpleGrantedAuthority(role.name()),
                 new SimpleGrantedAuthority("ROLE_" + role));

@@ -64,7 +64,7 @@ public class MangoTokenProvider implements TokenProvider {
         return new TokenResponse(accessToken);
     }
 
-    public static PrivateKey getPrivateKey(String algorithm, String keyContent) throws Exception{
+    public static PrivateKey getPrivateKey(String algorithm, String keyContent) throws Exception {
         try {
             byte[] encoded = decodeBase64(keyContent);
             KeyFactory kf = KeyFactory.getInstance(algorithm);
@@ -102,7 +102,7 @@ public class MangoTokenProvider implements TokenProvider {
         return null;
     }
 
-    private String convertToPublicKey(String key){
+    private String convertToPublicKey(String key) {
         StringBuilder result = new StringBuilder();
         result.append("-----BEGIN PUBLIC KEY-----\n");
         result.append(key);

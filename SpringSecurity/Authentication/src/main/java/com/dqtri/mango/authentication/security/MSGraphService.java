@@ -76,6 +76,7 @@ public class MSGraphService implements InitializingBean {
 
     /**
      * Build graph service client from the access token.
+     *
      * @param token access token.
      * @return {@link GraphServiceClient}.
      */

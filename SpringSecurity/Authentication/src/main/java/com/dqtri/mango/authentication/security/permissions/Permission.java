@@ -11,5 +11,6 @@ import java.io.Serializable;
 
 public abstract class Permission {
     public abstract boolean isAllowed(Authentication authentication, Object targetDomainObject);
+
     public abstract boolean isAllowed(Authentication authentication, Serializable targetId, String targetType);
 }

@@ -14,18 +14,18 @@ import org.springframework.util.Assert;
 @RequiredArgsConstructor
 public class JwtAuthenticationProvider implements AuthenticationProvider {
     private static final String BEARER = "Bearer ";
-    
+
     private final JwtTokenService jwtTokenService;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         try {
             validate(authentication);
-            if (authentication.getName().startsWith(BEARER)){
+            if (authentication.getName().startsWith(BEARER)) {
                 String token = authentication.getName().substring(BEARER.length());
                 return jwtTokenService.verifyToken(token);
             }
-        } catch (UsernameNotFoundException ex){
+        } catch (UsernameNotFoundException ex) {
             log.error(ex.getMessage());
         } catch (Exception e) {
             log.error("Authentication failed", e);
