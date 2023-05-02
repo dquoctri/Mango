@@ -6,7 +6,6 @@
 package com.dqtri.mango.authentication.security.impl;
 
 import com.dqtri.mango.authentication.security.TokenProvider;
-import com.dqtri.mango.authentication.security.models.MangoUserDetails;
 import com.dqtri.mango.authentication.security.models.TokenResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -24,6 +23,7 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 import java.util.Date;
@@ -34,8 +34,8 @@ import static org.apache.tomcat.util.codec.binary.Base64.decodeBase64;
 @RequiredArgsConstructor
 public class MangoTokenProvider implements TokenProvider {
 
-    @Value("${app.auth.secret}")
-    private String secret;
+    @Value("${app.auth.privateKey}")
+    private String privateKey;
 
     @Value("${app.auth.expirationInMs}")
     private long expirationInMs;
@@ -43,7 +43,7 @@ public class MangoTokenProvider implements TokenProvider {
     @Override
     public TokenResponse generateToken(Authentication authentication) throws Exception {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String encodedString = Base64.getEncoder().withoutPadding().encodeToString(secret.getBytes());
+
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationInMs);
         KeyPair keyPair = createKeyPair();
@@ -53,6 +53,8 @@ public class MangoTokenProvider implements TokenProvider {
                 // RS256 with privateKey
                 .signWith(SignatureAlgorithm.RS256, keyPair.getPrivate())
                 .compact();
+        Claims body = Jwts.parser().setSigningKey(keyPair.getPublic()).parseClaimsJws(accessToken).getBody();
+        System.out.println(body);
 
         Jws<Claims> claimsJws = Jwts.parser().setSigningKey(keyPair.getPublic())
                 .parseClaimsJws(accessToken);
@@ -75,16 +77,23 @@ public class MangoTokenProvider implements TokenProvider {
         }
     }
 
-    public KeyPair createKeyPair() throws NoSuchAlgorithmException {
+    public KeyPair createKeyPair() throws NoSuchAlgorithmException, InvalidKeySpecException {
         KeyPairGenerator keyGenerator = KeyPairGenerator.getInstance("RSA");
         keyGenerator.initialize(1024);
-
         KeyPair keyPair = keyGenerator.genKeyPair();
         PublicKey publicKey = keyPair.getPublic();
         PrivateKey privateKey = keyPair.getPrivate();
+        String encodedPrivateKey = Base64.getEncoder().encodeToString(privateKey.getEncoded());
+
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        PKCS8EncodedKeySpec keySpecPKCS8 = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(this.privateKey));
+        PrivateKey privKey = kf.generatePrivate(keySpecPKCS8);
+        String encodedPrivateKey2 = Base64.getEncoder().encodeToString(privKey.getEncoded());
+        System.out.println(convertToPublicKey(encodedPrivateKey2));
 
         String encodedPublicKey = Base64.getEncoder().encodeToString(publicKey.getEncoded());
         System.out.println(convertToPublicKey(encodedPublicKey));
+        System.out.println(convertToPublicKey(encodedPrivateKey));
         String token = generateJwtToken(privateKey);
         return keyPair;
     }

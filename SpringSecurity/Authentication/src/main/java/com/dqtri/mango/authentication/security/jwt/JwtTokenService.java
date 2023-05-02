@@ -1,17 +1,22 @@
 package com.dqtri.mango.authentication.security.jwt;
 
+import com.dqtri.mango.authentication.model.MangoUser;
 import com.dqtri.mango.authentication.security.MSGraphService;
+import com.dqtri.mango.authentication.security.models.MangoUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import org.springframework.stereotype.Component;
+
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
 @Slf4j
 @RequiredArgsConstructor
+@Component
 public class JwtTokenService {
 
     private final MSGraphService msGraphService;
@@ -24,8 +29,11 @@ public class JwtTokenService {
      */
     public JwtAuthenticationToken verifyToken(String token) throws ExecutionException, JWTVerificationException {
         verifyTokenExpiration(token);
-        UserDetails userDetails = msGraphService.getUserDetails(token);
-        return new JwtAuthenticationToken(userDetails, userDetails.getAuthorities());
+        String username = msGraphService.getUsername(token);
+        MangoUser mangoUser = new MangoUser();
+        mangoUser.setEmail(username);
+        MangoUserDetails mangoUserDetails = new MangoUserDetails(mangoUser);
+        return new JwtAuthenticationToken(mangoUserDetails, mangoUserDetails.getAuthorities());
     }
 
     private void verifyTokenExpiration(String token) throws JWTVerificationException {

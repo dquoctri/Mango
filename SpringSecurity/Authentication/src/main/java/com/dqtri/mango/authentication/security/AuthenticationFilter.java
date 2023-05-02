@@ -40,7 +40,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             } catch (ProviderNotFoundException ex) {
-                log.error("Could not set authentication in security context");
+                log.error("Could not set authentication in security context", ex);
             } catch (Exception e){
                 log.error("Could not set authentication in security context", e);
             }
