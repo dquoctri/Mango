@@ -11,10 +11,11 @@ import com.dqtri.mango.authentication.model.dto.RegisterPayload;
 import com.dqtri.mango.authentication.model.enums.Role;
 import com.dqtri.mango.authentication.repository.UserRepository;
 import com.dqtri.mango.authentication.security.TokenProvider;
-import com.dqtri.mango.authentication.security.models.TokenResponse;
+import com.dqtri.mango.authentication.security.TokenResponse;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -36,7 +37,7 @@ public class AuthController {
     private final TokenProvider tokenProvider;
     private final UserRepository userRepository;
 
-    @PostMapping("/login")
+    @PostMapping(value = "/login", consumes = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<?> login(@RequestBody @Valid LoginPayload login) throws Exception {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(login.getEmail(), login.getPassword())

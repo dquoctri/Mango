@@ -1,8 +1,12 @@
-package com.dqtri.mango.authentication.security.impl;
+/*
+ * Copyright (c) 2023 Mango Family
+ * All rights reserved or may not! :)
+ */
+
+package com.dqtri.mango.authentication.security;
 
 import com.dqtri.mango.authentication.model.MangoUser;
 import com.dqtri.mango.authentication.repository.UserRepository;
-import com.dqtri.mango.authentication.security.models.MangoUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

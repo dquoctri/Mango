@@ -1,11 +1,13 @@
-package com.dqtri.mango.authentication.security.jwt;
+/*
+ * Copyright (c) 2023 Mango Family
+ * All rights reserved or may not! :)
+ */
+
+package com.dqtri.mango.authentication.security;
 
 import com.dqtri.mango.authentication.model.MangoUser;
-import com.dqtri.mango.authentication.security.MSGraphService;
-import com.dqtri.mango.authentication.security.models.MangoUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UserDetails;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;

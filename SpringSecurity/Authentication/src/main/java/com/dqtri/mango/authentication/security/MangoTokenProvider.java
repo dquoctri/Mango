@@ -3,10 +3,8 @@
  * All rights reserved or may not! :)
  */
 
-package com.dqtri.mango.authentication.security.impl;
+package com.dqtri.mango.authentication.security;
 
-import com.dqtri.mango.authentication.security.TokenProvider;
-import com.dqtri.mango.authentication.security.models.TokenResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;

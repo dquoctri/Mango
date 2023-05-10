@@ -28,9 +28,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 @EnableWebSecurity
 @Configuration
-public class SecurityConfiguration {
+public class SecurityConfig {
 
-    private final UserRepository userRepository;
     private final AuthenticationProvider authenticationProvider;
     private final UserDetailsService userDetailsService;
 
@@ -53,8 +52,8 @@ public class SecurityConfiguration {
                         .requestMatchers("/register", "/login").permitAll()
                         .anyRequest().authenticated()
                 );
-//        http.apply(customDsl());
-        http.addFilterBefore(new AuthenticationFilter(authenticationManager(http)), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new AuthenticationFilter(authenticationManager(http)),
+                UsernamePasswordAuthenticationFilter.class);
         // @formatter:on
         return http.build();
     }
@@ -64,7 +63,6 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFormFilterChain(HttpSecurity http) throws Exception {
         // @formatter:off
         http
-
                 .formLogin().disable()
                 .httpBasic().disable()
                 .logout().disable();
@@ -83,25 +81,5 @@ public class SecurityConfiguration {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public UserDetails users() {
-        UserDetails user = User.withDefaultPasswordEncoder()
-                .username("user1")
-                .password("password1")
-                .roles("USER")
-                .build();
-        return user;
-    }
-
-    @Bean
-    public InMemoryUserDetailsManager userDetailsService() {
-        UserDetails user = User.withDefaultPasswordEncoder()
-                .username("user2")
-                .password("password2")
-                .roles("USER")
-                .build();
-        return new InMemoryUserDetailsManager(user);
     }
 }

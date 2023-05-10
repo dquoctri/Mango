@@ -1,9 +1,9 @@
 /*
- * Copyright (c) 2023 Deadline
+ * Copyright (c) 2023 Mango Family
  * All rights reserved or may not! :)
  */
 
-package com.dqtri.mango.authentication.security.models;
+package com.dqtri.mango.authentication.security;
 
 import com.dqtri.mango.authentication.model.MangoUser;
 import com.dqtri.mango.authentication.model.enums.Role;
@@ -28,11 +28,11 @@ public class MangoUserDetails extends User implements UserDetails {
         this.user = user;
     }
 
-    public static MangoUserDetails create(MangoUser user) {
+    public static MangoUserDetails create(@NotNull MangoUser user) {
         return new MangoUserDetails(user);
     }
 
-    private static List<SimpleGrantedAuthority> createAuthoritiesWithRole(Role role) {
+    private static List<SimpleGrantedAuthority> createAuthoritiesWithRole(@NotNull Role role) {
         return List.of(
                 new SimpleGrantedAuthority(role.name()),
                 new SimpleGrantedAuthority("ROLE_" + role));

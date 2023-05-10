@@ -20,6 +20,18 @@ On Windows, you can send an email with PowerShell by executing the following cod
 Send-MailMessage -From "no-replay-security@mango.dqtri.com" -To "mango@mango.dqtri.com" -Subject "Hello, Xoai!" -Body "I love you 3000!" -SmtpServer "localhost" -Port 1025
 ```
 
+# 3. Ldap
+
+```
+docker run --detach --rm --name openldap \
+  -p1389:1389 -p1636:1636 \
+  --env LDAP_ADMIN_USERNAME=admin \
+  --env LDAP_ADMIN_PASSWORD=admin\
+  --env LDAP_USERS=custom \
+  --env LDAP_PASSWORDS=custom \
+  -v mango_openldap_data:/bitnami/openldap \
+  bitnami/openldap:latest
+```
 
 
 

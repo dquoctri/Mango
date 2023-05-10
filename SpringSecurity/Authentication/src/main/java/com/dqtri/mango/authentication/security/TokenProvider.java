@@ -5,7 +5,6 @@
 
 package com.dqtri.mango.authentication.security;
 
-import com.dqtri.mango.authentication.security.models.TokenResponse;
 import org.springframework.security.core.Authentication;
 
 public interface TokenProvider {

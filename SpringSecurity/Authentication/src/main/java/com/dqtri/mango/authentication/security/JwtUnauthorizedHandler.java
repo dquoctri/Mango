@@ -1,4 +1,9 @@
-package com.dqtri.mango.authentication.security.jwt;
+/*
+ * Copyright (c) 2023 Mango Family
+ * All rights reserved or may not! :)
+ */
+
+package com.dqtri.mango.authentication.security;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,6 +20,6 @@ public class JwtUnauthorizedHandler implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
         log.error("Unauthorized error: {}", authException.getMessage());
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Error: Unauthorized");
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
     }
 }

@@ -3,7 +3,7 @@
  * All rights reserved or may not! :)
  */
 
-package com.dqtri.mango.authentication.security.models;
+package com.dqtri.mango.authentication.security;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

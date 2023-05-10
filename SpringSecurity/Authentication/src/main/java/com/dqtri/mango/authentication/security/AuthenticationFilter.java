@@ -2,7 +2,6 @@ package com.dqtri.mango.authentication.security;
 
 import java.io.IOException;
 
-import com.dqtri.mango.authentication.security.jwt.JwtAuthenticationToken;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
@@ -39,8 +37,6 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                     Authentication authentication = authenticationManager.authenticate(jwtAuthenticationToken);
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
-            } catch (ProviderNotFoundException ex) {
-                log.error("Could not set authentication in security context", ex);
             } catch (Exception e) {
                 log.error("Could not set authentication in security context", e);
             }

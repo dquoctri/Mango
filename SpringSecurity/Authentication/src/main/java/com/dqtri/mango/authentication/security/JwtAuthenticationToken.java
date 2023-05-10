@@ -1,4 +1,9 @@
-package com.dqtri.mango.authentication.security.jwt;
+/*
+ * Copyright (c) 2023 Mango Family
+ * All rights reserved or may not! :)
+ */
+
+package com.dqtri.mango.authentication.security;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
