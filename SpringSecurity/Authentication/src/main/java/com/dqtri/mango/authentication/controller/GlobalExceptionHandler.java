@@ -8,6 +8,7 @@ package com.dqtri.mango.authentication.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -19,9 +20,15 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<Object> handleAuthenticationException(Exception e, WebRequest request) {
+    public ResponseEntity<Object> handleAuthenticationException(AuthenticationException e) {
         log.error(e.getMessage(), e);
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException e) {
+        log.error(e.getMessage(), e);
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(Exception.class)

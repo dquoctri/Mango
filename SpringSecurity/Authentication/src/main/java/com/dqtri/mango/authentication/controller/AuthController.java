@@ -39,7 +39,7 @@ public class AuthController {
 
     @PostMapping(value = "/login", consumes = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<?> login(@RequestBody @Valid LoginPayload login) throws Exception {
-        Authentication authentication = authenticationManager.authenticate(
+        Authentication authentication = authenticationManager.authenticate (
                 new UsernamePasswordAuthenticationToken(login.getEmail(), login.getPassword())
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -60,16 +60,16 @@ public class AuthController {
 
     @PostMapping("forgot_password")
     public ResponseEntity<?> forgotPassword() {
-        return ResponseEntity.ok(List.of("payload1a", "payload1b"));
+        return ResponseEntity.ok("forgot_password");
     }
 
     @PostMapping("reset_password")
     public ResponseEntity<?> resetPassword() {
-        return ResponseEntity.ok(List.of("payload1a", "payload1b"));
+        return ResponseEntity.ok("reset_password");
     }
 
     @PostMapping("change_password")
     public ResponseEntity<?> changePassword() {
-        return ResponseEntity.ok(List.of("payload1a", "payload1b"));
+        return ResponseEntity.ok("change_password");
     }
 }

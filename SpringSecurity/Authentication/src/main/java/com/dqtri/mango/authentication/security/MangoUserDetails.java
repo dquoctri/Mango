@@ -21,11 +21,11 @@ import java.util.List;
 public class MangoUserDetails extends User implements UserDetails {
 
     @NotNull
-    private MangoUser user;
+    private MangoUser mangoUser;
 
     public MangoUserDetails(@NotNull MangoUser user) {
         super(user.getEmail(), user.getPassword(), createAuthoritiesWithRole(user.getRole()));
-        this.user = user;
+        this.mangoUser = user;
     }
 
     public static MangoUserDetails create(@NotNull MangoUser user) {
