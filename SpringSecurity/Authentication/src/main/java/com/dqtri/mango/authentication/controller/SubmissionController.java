@@ -33,7 +33,7 @@ public class SubmissionController {
 
     @Transactional
     @PostMapping("/submissions")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'SPECIALIST', 'SUBMITTER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUBMITTER')")
     public ResponseEntity<?> create(@RequestBody @Valid SubmissionBody submissionBody) {
         Submission submission = submissionBody.toSubmission();
         Submission save = submissionRepository.save(submission);

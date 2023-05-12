@@ -1,9 +1,4 @@
-/*
- * Copyright (c) 2023 Mango Family
- * All rights reserved or may not! :)
- */
-
-package com.dqtri.mango.authentication.model.dto;
+package com.dqtri.mango.configuring.model.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
