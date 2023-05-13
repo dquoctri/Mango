@@ -60,12 +60,6 @@ public class ManualSecurityCsrfConfig {
     }
 
     @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring()
-                .requestMatchers("/resources/**");
-    }
-
-    @Bean
     public InMemoryUserDetailsManager userDetailsService() {
         UserDetails submitter = User.withUsername("submitter")
                 .password("submitter")

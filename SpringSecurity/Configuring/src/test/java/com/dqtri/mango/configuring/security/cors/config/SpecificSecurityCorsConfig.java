@@ -49,8 +49,8 @@ public class SpecificSecurityCorsConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost:3000"));
         config.setAllowedHeaders(List.of("Content-Type", "X-Frame-Options", "X-XSS-Protection", "X-Content-Type-Options", "Authorization"));
-        config.setAllowedMethods(List.of("OPTIONS"));
-        config.setExposedHeaders(List.of("ERROR_CODE", "CONTENT_DISPOSITION"));
+        config.setAllowedMethods(List.of("OPTIONS", "GET", "POST"));
+        config.setExposedHeaders(List.of("ERROR_CODE", "CONTENT_DISPOSITION", "X-Source-Id"));
         config.setAllowCredentials(true);
 //        config.setMaxAge(3600L);
         source.registerCorsConfiguration("/**", config);
@@ -68,7 +68,8 @@ public class SpecificSecurityCorsConfig {
         return new AccessDeniedHandlerImpl();
     }
 
-    @Bean
+    //You are asking Spring Security to ignore Mvc [pattern='/resources/**']. This is not recommended -- please use permitAll via HttpSecurity#authorizeHttpRequests instead.
+    @Deprecated
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring()
                 .requestMatchers("/resources/**");

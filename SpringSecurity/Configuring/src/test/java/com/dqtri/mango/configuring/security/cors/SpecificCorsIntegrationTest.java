@@ -55,17 +55,20 @@ public class SpecificCorsIntegrationTest extends AbstractIntegrationTest {
         mvc.perform(
                 options("/submissions")
                         .header("Access-Control-Request-Method", method)
+                        .header("Origin", "http://localhost:3000")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(createSubmissionPayloadJson())
                         .with(mockSubmitterUser())
         ).andExpect(status().isOk());
     }
 
-    @Test
-    public void givenPutMethod_whenCallSubmissionOptions_thenForbidden() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {"PUT", "DELETE"})
+    public void givenMethod_whenCallSubmissionOptions_thenForbidden(String method) throws Exception {
         mvc.perform(
-                put("/submissions/1")
-                        .header("Access-Control-Request-Method", "PUT")
+                options("/submissions")
+                        .header("Access-Control-Request-Method", method)
+                        .header("Origin", "http://localhost:3000")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(createSubmissionPayloadJson())
                         .with(mockSubmitterUser())

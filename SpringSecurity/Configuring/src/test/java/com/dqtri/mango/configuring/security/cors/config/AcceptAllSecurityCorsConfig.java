@@ -67,10 +67,4 @@ public class AcceptAllSecurityCorsConfig {
     public AccessDeniedHandler accessDeniedHandler(){
         return new AccessDeniedHandlerImpl();
     }
-
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring()
-                .requestMatchers("/resources/**");
-    }
 }

@@ -58,9 +58,4 @@ public class SecurityWithoutCsrfConfig {
         return new AccessDeniedHandlerImpl();
     }
 
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring()
-                .requestMatchers("/resources/**");
-    }
 }

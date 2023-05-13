@@ -27,8 +27,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 @RequiredArgsConstructor
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -38,14 +36,13 @@ public class SecurityConfig {
     private final AuthenticationProvider authenticationProvider;
     private final UserDetailsService userDetailsService;
 
-
     @Bean
-    @Order(1)
-    public SecurityFilterChain securityAnonymousFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // @formatter:off
         http
                 .csrf().disable()
                 .cors().configurationSource(corsConfigurer()).and()
+                .anonymous().disable()
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/register", "/login").permitAll()
                         .anyRequest().authenticated()
@@ -63,8 +60,7 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("*"));
-        config.setAllowedHeaders(List.of("Content-Type", "X-Frame-Options", "X-XSS-Protection",
-                "X-Content-Type-Options", "Authorization"));
+        config.setAllowedHeaders(List.of("Content-Type", "X-Frame-Options", "X-XSS-Protection", "X-Content-Type-Options", "Authorization"));
         config.setAllowedMethods(List.of("OPTIONS", "GET", "POST", "PUT", "DELETE"));
         config.setExposedHeaders(List.of("ERROR_CODE", "CONTENT_DISPOSITION"));
         source.registerCorsConfiguration("/**", config);

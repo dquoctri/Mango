@@ -7,24 +7,31 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
 @Slf4j
 @RequiredArgsConstructor
-public class AuthenticationFilter extends OncePerRequestFilter {
-
+public class CustomAuthenticationFilter extends OncePerRequestFilter {
     public static final String AUTHORIZATION_HEADER = "Authorization";
+
+   private final AuthenticationManager authenticationManager;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         if (!isPreflightRequest(request)) {
             String accessToken = getAuthorizationToken(request);
             //TODO: is valid token
-            AuthenticationToken authentication = new AuthenticationToken("token");
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            CustomAuthenticationToken customAuthenticationToken = new CustomAuthenticationToken(accessToken);
+            Authentication authenticate = authenticationManager.authenticate(customAuthenticationToken);
+            // customAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authenticate);
         }
         filterChain.doFilter(request, response);
     }
