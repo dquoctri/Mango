@@ -37,7 +37,7 @@ public class SpecificCorsIntegrationTest extends AbstractIntegrationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"http://localhost:4200", "http://localhost:3000"})
+    @ValueSource(strings = {"http://localhost:9000", "http://localhost:4200", "http://localhost:3000"})
     public void givenKnowledgeOrigin_whenAddSubmission_thenOk(String origin) throws Exception {
         mvc.perform(
                 options("/submissions")
@@ -47,6 +47,18 @@ public class SpecificCorsIntegrationTest extends AbstractIntegrationTest {
                         .content(createSubmissionPayloadJson())
                         .with(mockSubmitterUser())
         ).andExpect(status().isOk());
+    }
+
+    @Test
+    public void givenCrossOriginOverrideByConfig_whenAddSubmission_thenForbidden(String origin) throws Exception {
+        mvc.perform(
+                options("/submissions")
+                        .header("Access-Control-Request-Method", "POST")
+                        .header("Origin", "http://localhost:9000")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createSubmissionPayloadJson())
+                        .with(mockSubmitterUser())
+        ).andExpect(status().isForbidden());
     }
 
     @ParameterizedTest

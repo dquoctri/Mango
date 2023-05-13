@@ -6,14 +6,11 @@ import com.dqtri.mango.configuring.secirity.UnauthorizedHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,7 +29,7 @@ import java.util.List;
 @EnableMethodSecurity
 @Configuration
 public class SecurityConfig {
-//    private final UserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
 
 //    private final UnauthorizedHandler unauthorizedHandler;
 
@@ -52,10 +49,8 @@ public class SecurityConfig {
                 .logout().disable()
                 .exceptionHandling().authenticationEntryPoint(new UnauthorizedHandler()).and()
                 .exceptionHandling().accessDeniedHandler(accessDeniedHandler());
-        CustomAuthenticationFilter authenticationFilter = new CustomAuthenticationFilter(authenticationManager(http));
-        http.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
         // @formatter:on
-        return http.getOrBuild();
+        return http.build();
     }
 
     private CorsConfigurationSource corsConfigurer() {
@@ -74,7 +69,9 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
-        // builder.userDetailsService(userDetailsService);
+        CustomAuthenticationFilter authenticationFilter = new CustomAuthenticationFilter(builder.getObject());
+        http.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        builder.userDetailsService(userDetailsService);
         builder.authenticationProvider(new CustomAuthenticationProvider());
         return builder.build();
     }
