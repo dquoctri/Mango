@@ -1,11 +1,10 @@
 package com.dqtri.mango.configuring.security.csrf;
 
 import com.dqtri.mango.configuring.controller.AuthController;
-import com.dqtri.mango.configuring.controller.SubmissionController;
 import com.dqtri.mango.configuring.controller.UserController;
 import com.dqtri.mango.configuring.model.dto.LoginPayload;
+import com.dqtri.mango.configuring.security.AbstractIntegrationTest;
 import com.dqtri.mango.configuring.security.csrf.config.ManualSecurityCsrfConfig;
-import com.dqtri.mango.configuring.security.csrf.config.SecurityWithCsrfConfig;
 import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -22,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Nested
 @WebMvcTest(controllers = {AuthController.class, UserController.class},
         includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = ManualSecurityCsrfConfig.class))
-public class ManualSecurityIntegrationTest extends CsrfAbstractIntegrationTest {
+public class CsrfManualSecurityIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void givenNoSession_whenGetUserMe_thenUnauthorized() throws Exception {

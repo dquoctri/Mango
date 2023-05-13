@@ -38,23 +38,14 @@ public class SecurityConfig {
     private final AuthenticationProvider authenticationProvider;
     private final UserDetailsService userDetailsService;
 
-    /**
-     * This function configures the security filter chain for HTTP requests
-     * The WebSecurityConfigurerAdapter was deprecated In Spring Security 5.7.0-M2
-     *
-     * @param http The `http` parameter is an instance of `HttpSecurity`, which is a configuration
-     *             object that allows you to configure security settings for your application.
-     * @return A SecurityFilterChain object is being returned.
-     * @link <a href="https://spring.io/blog/2022/02/21/spring-security-without-the-websecurityconfigureradapter">
-     * spring-security-without-the-websecurityconfigureradapter</a>
-     */
+
     @Bean
     @Order(1)
     public SecurityFilterChain securityAnonymousFilterChain(HttpSecurity http) throws Exception {
         // @formatter:off
         http
                 .csrf().disable()
-                .cors().configurationSource(configurationSource()).and()
+                .cors().configurationSource(corsConfigurer()).and()
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/register", "/login").permitAll()
                         .anyRequest().authenticated()
@@ -68,7 +59,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    private CorsConfigurationSource configurationSource() {
+    private CorsConfigurationSource corsConfigurer() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("*"));

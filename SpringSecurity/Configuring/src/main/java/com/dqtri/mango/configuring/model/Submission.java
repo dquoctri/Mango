@@ -6,5 +6,6 @@ import lombok.Setter;
 @Setter
 @Getter
 public class Submission {
+    private Long pk;
     private String value;
 }

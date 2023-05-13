@@ -1,4 +1,4 @@
-package com.dqtri.mango.configuring.security.csrf;
+package com.dqtri.mango.configuring.security;
 
 import com.dqtri.mango.configuring.model.dto.SubmissionPayload;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -11,7 +11,7 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 @WebMvcTest
-public abstract class CsrfAbstractIntegrationTest {
+public abstract class AbstractIntegrationTest {
     @Autowired
     protected MockMvc mvc;
 

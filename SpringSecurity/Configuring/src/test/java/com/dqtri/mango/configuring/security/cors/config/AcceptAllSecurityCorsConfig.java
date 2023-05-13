@@ -1,4 +1,4 @@
-package com.dqtri.mango.configuring.security.csrf.config;
+package com.dqtri.mango.configuring.security.cors.config;
 
 import com.dqtri.mango.configuring.secirity.UnauthorizedHandler;
 import org.springframework.context.annotation.Bean;
@@ -9,31 +9,25 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @EnableWebSecurity
 @EnableMethodSecurity
 @Configuration
-public class ManualSecurityCsrfConfig {
-
-    /**
-     * config Cross-Site Request Forgery (CSRF) attacks
-     * Starting from Spring Security 4.x, the CSRF protection is enabled by default.
-     * @param http
-     * @return
-     * @throws Exception
-     */
+public class AcceptAllSecurityCorsConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // @formatter:off
         http.csrf().disable();
-
-        http.cors().disable()
+        // by default uses a Bean by the name of corsConfigurationSource
+        http.cors().and()
                 .anonymous().disable()
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/users/me", "/login").permitAll()
@@ -46,6 +40,21 @@ public class ManualSecurityCsrfConfig {
                 .exceptionHandling().accessDeniedHandler(accessDeniedHandler());
         // @formatter:on
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("*"));
+        config.setAllowedOriginPatterns(List.of("*"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowedMethods(List.of("*"));
+        config.setExposedHeaders(List.of("*"));
+        config.setMaxAge(3600L);
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 
     @Bean
@@ -64,18 +73,4 @@ public class ManualSecurityCsrfConfig {
         return (web) -> web.ignoring()
                 .requestMatchers("/resources/**");
     }
-
-    @Bean
-    public InMemoryUserDetailsManager userDetailsService() {
-        UserDetails submitter = User.withUsername("submitter")
-                .password("submitter")
-                .authorities("ROLE_SUBMITTER")
-                .build();
-        UserDetails admin = User.withUsername("admin")
-                .password("admin")
-                .authorities("ROLE_ADMIN")
-                .build();
-        return new InMemoryUserDetailsManager(submitter, admin);
-    }
 }
-

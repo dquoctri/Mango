@@ -1,6 +1,7 @@
 package com.dqtri.mango.configuring.config;
 
 import com.dqtri.mango.configuring.secirity.AuthenticationFilter;
+import com.dqtri.mango.configuring.secirity.UnauthorizedHandler;
 import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -11,9 +12,12 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
@@ -26,66 +30,54 @@ import java.util.List;
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
-
     private final AuthenticationProvider authenticationProvider;
 
-    /**
-     * config Cross-Site Request Forgery (CSRF) attacks
-     * Starting from Spring Security 4.x, the CSRF protection is enabled by default.
-     * @param http
-     * @return
-     * @throws Exception
-     */
     @Bean
-    @Order(1)
-    public SecurityFilterChain disableCsrfFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf().disable();
-        return http.build();
-    }
-
-    /**
-     * <meta name="_csrf" content="${_csrf.token}"/>
-     * <meta name="_csrf_header" content="${_csrf.headerName}"/>
-     * <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
-     * Our stateless API can't add the CSRF token like our MVC configuration because it doesn't generate any HTML view.
-     * In that case, we can send the CSRF token in a cookie using CookieCsrfTokenRepository:
-     * fetch(url, {
-     *   method: 'POST',
-     *   body: * data to send *,
-     *   headers: { 'X-XSRF-TOKEN':csrfToken },
-     * })
-     * @param http
-     * @return
-     * @throws Exception
-     */
-    @Bean
-    @Order(2)
-    public SecurityFilterChain cookieCsrfFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf()
-                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
-        return http.build();
-    }
-
-    @Bean
-    @Order(2)
     public SecurityFilterChain authorizeFilterChain(HttpSecurity http) throws Exception {
         // @formatter:off
         http
+                .csrf().disable()
+                .cors().configurationSource(corsConfigurationSource()).and()
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/register", "/login").permitAll()
+                        .requestMatchers("/login").permitAll()
                         .anyRequest().authenticated()
-                );
+                )
+                .formLogin().disable()
+                .httpBasic().disable()
+                .logout().disable()
+                .exceptionHandling().authenticationEntryPoint(new UnauthorizedHandler()).and()
+                .exceptionHandling().accessDeniedHandler(accessDeniedHandler());
+
         http.addFilterBefore(new AuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
         // @formatter:on
         return http.build();
     }
 
     @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost:3000"));
+        config.setAllowedHeaders(List.of("Content-Type", "X-Frame-Options", "X-XSS-Protection", "X-Content-Type-Options", "Authorization"));
+        config.setAllowedMethods(List.of("OPTIONS", "GET", "POST"));
+        config.setExposedHeaders(List.of("ERROR_CODE", "CONTENT_DISPOSITION"));
+
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
+
+    @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        builder.authenticationProvider(authenticationProvider);
         return builder.build();
+    }
+
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler(){
+        return new AccessDeniedHandlerImpl();
     }
 
     @Bean
@@ -93,15 +85,11 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    private CorsConfigurationSource configurationSource() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("*"));
-        config.setAllowedHeaders(List.of("Content-Type", "Authorization", "X-Frame-Options", "X-XSS-Protection",
-                "X-Content-Type-Options", "Ocp-Apim-Subscription-Key"));
-        config.setAllowedMethods(List.of("OPTIONS", "GET", "POST", "PUT", "DELETE"));
-        config.setExposedHeaders(List.of("ERROR_CODE", "GROUPS", "CONTENT_DISPOSITION"));
-        source.registerCorsConfiguration("/**", config);
-        return source;
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring()
+                .requestMatchers("/resources/**");
     }
+
+
 }

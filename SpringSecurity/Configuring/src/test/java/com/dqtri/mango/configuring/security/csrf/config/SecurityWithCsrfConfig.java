@@ -18,6 +18,13 @@ import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 @Configuration
 public class SecurityWithCsrfConfig {
 
+    /**
+     * config Cross-Site Request Forgery (CSRF) attacks
+     * Starting from Spring Security 4.x, the CSRF protection is enabled by default.
+     * @param http
+     * @return
+     * @throws Exception
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         // @formatter:off

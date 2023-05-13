@@ -1,4 +1,4 @@
-package com.dqtri.mango.configuring.security.csrf.config;
+package com.dqtri.mango.configuring.security.cors.config;
 
 import com.dqtri.mango.configuring.secirity.UnauthorizedHandler;
 import org.springframework.context.annotation.Bean;
@@ -9,9 +9,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
@@ -19,21 +16,13 @@ import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 @EnableWebSecurity
 @EnableMethodSecurity
 @Configuration
-public class ManualSecurityCsrfConfig {
-
-    /**
-     * config Cross-Site Request Forgery (CSRF) attacks
-     * Starting from Spring Security 4.x, the CSRF protection is enabled by default.
-     * @param http
-     * @return
-     * @throws Exception
-     */
+public class DefaultSecurityCorsConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // @formatter:off
         http.csrf().disable();
-
-        http.cors().disable()
+        // by default uses a Bean by the name of corsConfigurationSource
+        http.cors().and()
                 .anonymous().disable()
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/users/me", "/login").permitAll()
@@ -47,6 +36,7 @@ public class ManualSecurityCsrfConfig {
         // @formatter:on
         return http.build();
     }
+
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
@@ -64,18 +54,4 @@ public class ManualSecurityCsrfConfig {
         return (web) -> web.ignoring()
                 .requestMatchers("/resources/**");
     }
-
-    @Bean
-    public InMemoryUserDetailsManager userDetailsService() {
-        UserDetails submitter = User.withUsername("submitter")
-                .password("submitter")
-                .authorities("ROLE_SUBMITTER")
-                .build();
-        UserDetails admin = User.withUsername("admin")
-                .password("admin")
-                .authorities("ROLE_ADMIN")
-                .build();
-        return new InMemoryUserDetailsManager(submitter, admin);
-    }
 }
-
