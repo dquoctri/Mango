@@ -41,7 +41,7 @@ public class SecurityConfig {
         // @formatter:off
         http
                 .csrf().disable()
-                .cors().configurationSource(corsConfigurer()).and()
+                .cors().and()
                 .anonymous().disable()
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/register", "/login").permitAll()
@@ -56,7 +56,8 @@ public class SecurityConfig {
         return http.build();
     }
 
-    private CorsConfigurationSource corsConfigurer() {
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("*"));

@@ -37,7 +37,7 @@ public class SpecificCorsIntegrationTest extends AbstractIntegrationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"http://localhost:9000", "http://localhost:4200", "http://localhost:3000"})
+    @ValueSource(strings = {"http://localhost:4200", "http://localhost:3000"})
     public void givenKnowledgeOrigin_whenAddSubmission_thenOk(String origin) throws Exception {
         mvc.perform(
                 options("/submissions")
@@ -49,12 +49,13 @@ public class SpecificCorsIntegrationTest extends AbstractIntegrationTest {
         ).andExpect(status().isOk());
     }
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(strings = {"http://localhost:9000"})
     public void givenCrossOriginOverrideByConfig_whenAddSubmission_thenForbidden(String origin) throws Exception {
         mvc.perform(
                 options("/submissions")
                         .header("Access-Control-Request-Method", "POST")
-                        .header("Origin", "http://localhost:9000")
+                        .header("Origin", origin)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(createSubmissionPayloadJson())
                         .with(mockSubmitterUser())
@@ -102,7 +103,8 @@ public class SpecificCorsIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(header().string("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate"))
                 .andExpect(header().string("Pragma", "no-cache"))
                 .andExpect(header().string("X-Frame-Options", "DENY"))
-                .andExpect(header().string("X-Source-Id", "1"));
+                .andExpect(header().string("X-Source-Id", "1"))
+                .andExpect(header().string("ERROR_CODE", "201"));
     }
 
 }

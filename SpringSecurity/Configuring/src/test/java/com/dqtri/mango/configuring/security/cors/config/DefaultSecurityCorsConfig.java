@@ -1,6 +1,6 @@
 package com.dqtri.mango.configuring.security.cors.config;
 
-import com.dqtri.mango.configuring.secirity.UnauthorizedHandler;
+import com.dqtri.mango.configuring.security.UnauthorizedEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -8,7 +8,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
@@ -31,7 +30,7 @@ public class DefaultSecurityCorsConfig {
                 .formLogin().disable()
                 .httpBasic().disable()
                 .logout().disable()
-                .exceptionHandling().authenticationEntryPoint(new UnauthorizedHandler()).and()
+                .exceptionHandling().authenticationEntryPoint(new UnauthorizedEntryPoint()).and()
                 .exceptionHandling().accessDeniedHandler(accessDeniedHandler());
         // @formatter:on
         return http.build();

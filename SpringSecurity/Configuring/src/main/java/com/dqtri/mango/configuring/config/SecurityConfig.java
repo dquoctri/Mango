@@ -1,19 +1,20 @@
 package com.dqtri.mango.configuring.config;
 
-import com.dqtri.mango.configuring.secirity.CustomAuthenticationFilter;
-import com.dqtri.mango.configuring.secirity.CustomAuthenticationProvider;
-import com.dqtri.mango.configuring.secirity.UnauthorizedHandler;
+import com.dqtri.mango.configuring.security.CustomAuthenticationFilter;
+import com.dqtri.mango.configuring.security.UnauthorizedEntryPoint;
+import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
@@ -24,44 +25,54 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
-@RequiredArgsConstructor
+@Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
-    private final UserDetailsService userDetailsService;
-
-//    private final UnauthorizedHandler unauthorizedHandler;
+    private final AuthenticationProvider authenticationProvider;
 
     @Bean
     public SecurityFilterChain authorizeFilterChain(HttpSecurity http) throws Exception {
         // @formatter:off
         http
                 .csrf().disable()
-                .cors().configurationSource(corsConfigurer()).and()
+                .cors().and()
+                .securityContext((securityContext) -> securityContext
+                        .requireExplicitSave(false)
+                )
+//                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .anonymous().disable()
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/login").permitAll()
+//                        .dispatcherTypeMatchers(DispatcherType.ASYNC, DispatcherType.FORWARD).permitAll()
+                        .requestMatchers( "/login").permitAll()
                         .anyRequest().authenticated()
                 )
+
                 .formLogin().disable()
                 .httpBasic().disable()
                 .logout().disable()
-                .exceptionHandling().authenticationEntryPoint(new UnauthorizedHandler()).and()
+//                //https://docs.spring.io/spring-security/site/docs/4.2.1.RELEASE/reference/htmlsingle/#filter-ordering
+                .addFilterBefore(authenticationFilter(http), UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler()).and()
                 .exceptionHandling().accessDeniedHandler(accessDeniedHandler());
+
         // @formatter:on
         return http.build();
     }
 
-    private CorsConfigurationSource corsConfigurer() {
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("*"));
+        config.setAllowedOriginPatterns(List.of("*"));
         config.setAllowedHeaders(List.of("Content-Type", "X-Frame-Options", "X-XSS-Protection", "X-Content-Type-Options", "Authorization"));
-        config.setAllowedMethods(List.of("OPTIONS", "GET", "POST"));
-        config.setExposedHeaders(List.of("ERROR_CODE", "CONTENT_DISPOSITION"));
-        config.setAllowCredentials(true);
+        config.setAllowedMethods(List.of("OPTIONS", "GET", "POST", "PUT", "DELETE"));
+        config.setExposedHeaders(List.of("ERROR_CODE"));
+        config.setAllowCredentials(false);
+        config.setMaxAge(3600L);
         source.registerCorsConfiguration("/**", config);
         return source;
     }
@@ -69,11 +80,19 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
-        CustomAuthenticationFilter authenticationFilter = new CustomAuthenticationFilter(builder.getObject());
-        http.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        builder.userDetailsService(userDetailsService);
-        builder.authenticationProvider(new CustomAuthenticationProvider());
+        builder.authenticationProvider(authenticationProvider);
         return builder.build();
+    }
+
+    @Bean
+    public Filter authenticationFilter(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        return new CustomAuthenticationFilter(builder.build());
+    }
+
+    @Bean
+    public AuthenticationEntryPoint unauthorizedHandler(){
+        return new UnauthorizedEntryPoint();
     }
 
     @Bean

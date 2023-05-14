@@ -1,6 +1,6 @@
 package com.dqtri.mango.configuring.security.cors.config;
 
-import com.dqtri.mango.configuring.secirity.UnauthorizedHandler;
+import com.dqtri.mango.configuring.security.UnauthorizedEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -36,7 +36,7 @@ public class SpecificSecurityCorsConfig {
                 .formLogin().disable()
                 .httpBasic().disable()
                 .logout().disable()
-                .exceptionHandling().authenticationEntryPoint(new UnauthorizedHandler()).and()
+                .exceptionHandling().authenticationEntryPoint(new UnauthorizedEntryPoint()).and()
                 .exceptionHandling().accessDeniedHandler(accessDeniedHandler());
         // @formatter:on
         return http.build();
@@ -50,9 +50,9 @@ public class SpecificSecurityCorsConfig {
         config.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost:3000"));
         config.setAllowedHeaders(List.of("Content-Type", "X-Frame-Options", "X-XSS-Protection", "X-Content-Type-Options", "Authorization"));
         config.setAllowedMethods(List.of("OPTIONS", "GET", "POST"));
-        config.setExposedHeaders(List.of("ERROR_CODE", "CONTENT_DISPOSITION", "X-Source-Id"));
+        config.setExposedHeaders(List.of("ERROR_CODE"));
         config.setAllowCredentials(true);
-//        config.setMaxAge(3600L);
+        config.setMaxAge(3600L);
         source.registerCorsConfiguration("/**", config);
         return source;
     }
