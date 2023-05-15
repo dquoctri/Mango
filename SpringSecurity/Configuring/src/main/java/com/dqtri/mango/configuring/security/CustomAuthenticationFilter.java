@@ -28,13 +28,18 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         if (!isPreflightRequest(request)) {
-            String accessToken = getAuthorizationToken(request);
-            if (StringUtils.hasText(accessToken) && tokenValidFormat(accessToken)) {
-                CustomAuthenticationToken customAuthenticationToken = new CustomAuthenticationToken(accessToken);
-                Authentication authentication = authenticationManager.authenticate(customAuthenticationToken);
-
-                log.debug("Logging in with [{}]", authentication.getPrincipal());
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+            try {
+                String accessToken = getAuthorizationToken(request);
+                if (StringUtils.hasText(accessToken) && tokenValidFormat(accessToken)) {
+                    CustomAuthenticationToken customAuthenticationToken = new CustomAuthenticationToken(accessToken);
+                    Authentication authentication = authenticationManager.authenticate(customAuthenticationToken);
+                    if (authentication != null){
+                        log.debug("Logging in with [{}]", authentication.getPrincipal());
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
+                }
+            } catch (Exception e){
+                log.error("Could not set authentication in security context", e);
             }
         }
         filterChain.doFilter(request, response);

@@ -1,13 +1,18 @@
-# 1. Mysql container
+# Database
+
+## 1. Postgres container
+```
+docker run --name core-postgres -p5432:5432 -e POSTGRES_DB=core-postgres -e POSTGRES_PASSWORD=postgres -v core_postgres_pgdata:/var/lib/postgresql/data --restart always -d postgres:15.3
+```
+
+## 2. Mysql container
 
 ```
-docker run --name mango-mysql -p3306:3306 -e MYSQL_ROOT_PASSWORD=root -v mango_mysql_datadir:/var/lib/mysql --restart always -d mysql:8.0.29
+docker run --name auth-mysql -p3306:3306 -e MYSQL_DATABASE=auth-mysql -e MYSQL_ROOT_PASSWORD=root -v auth_mysql_datadir:/var/lib/mysql --restart always -d mysql:8.0.33
 ```
 
-setup empty mysql database:
-```
-docker exec -it mango-mysql sh -c "mysql -uroot -proot -e 'create database mango;'"
- ```
+
+
 
 # 2. Mailhog
 ```
