@@ -32,19 +32,23 @@ import java.util.Date;
 @Entity
 public class Submission extends BaseEntity {
 
+    @Column(name = "subject", length = 255)
     private String subject;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private Status status;
+
+    @Column(name = "comment", length = 1000)
+    private String comment;
 
     @ManyToOne
     @JoinColumn(name = "submitter_fk")
     private CoreUser submitter;
 
     @ManyToOne
-    @JoinColumn(name = "assigner_fk")
-    private CoreUser assigner;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status")
-    private Status status;
+    @JoinColumn(name = "assigned_user_fk")
+    private CoreUser assignedUser;
 
     @CreatedBy
     @Column(name = "created_by", updatable = false)

@@ -5,7 +5,6 @@
 
 package com.dqtri.mango.authentication.security.csrf;
 
-import com.dqtri.mango.authentication.model.dto.LoginPayload;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +18,10 @@ public abstract class CsrfAbstractIntegrationTest {
     protected MockMvc mvc;
 
     protected String createTestLoginPayload() throws JsonProcessingException {
-        LoginPayload loginPayload = new LoginPayload();
-        loginPayload.setEmail("test@mango.dqtri.com");
-        loginPayload.setPassword("*******");
-        return new ObjectMapper().writeValueAsString(loginPayload);
+//        LoginPayload loginPayload = new LoginPayload();
+//        loginPayload.setEmail("test@mango.dqtri.com");
+//        loginPayload.setPassword("*******");
+        return new ObjectMapper().writeValueAsString(new Object());
     }
 
 }

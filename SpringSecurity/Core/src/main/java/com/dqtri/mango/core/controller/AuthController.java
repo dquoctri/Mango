@@ -48,11 +48,12 @@ public class AuthController {
         return ResponseEntity.ok(tokenResponse);
     }
 
-    @PostMapping("/register")
+    @PostMapping(value = "/register")
     @Transactional
     public ResponseEntity<?> register(@RequestBody @Valid RegisterPayload register) {
         checkConflictUserEmail(register.getEmail());
-        CoreUser saved = userRepository.save(createCoreUser(register));
+        CoreUser coreUser = createCoreUser(register);
+        CoreUser saved = userRepository.save(coreUser);
         return ResponseEntity.ok(saved);
     }
 

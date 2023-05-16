@@ -28,6 +28,6 @@ public class UnauthorizedEntryPointTest {
         //when
         authenticationEntryPoint.commence(request, response, exception);
         //then
-        verify(response).sendError(HttpServletResponse.SC_UNAUTHORIZED, "Error: Unauthorized");
+        verify(response).sendError(HttpServletResponse.SC_UNAUTHORIZED);
     }
 }
