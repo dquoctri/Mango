@@ -83,7 +83,7 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    @PreAuthorize("hasRole('ADMIN') and hasPermission('#userId', 'nonAdminResource')")
+    @PreAuthorize("hasRole('ADMIN') and !hasPermission('#userId', 'isAdminResource')")
     public ResponseEntity<?> updateUser(@PathVariable("userId") Long userId,
                                         @Valid @RequestBody UserUpdatingPayload payload) {
         MangoUser user = userRepository.findById(userId)
@@ -93,7 +93,7 @@ public class UserController {
     }
 
     @PutMapping("/{userId}/password")
-    @PreAuthorize("hasRole('ADMIN') and hasPermission('#userId', 'nonAdminResource')")
+    @PreAuthorize("hasRole('ADMIN') and !hasPermission('#userId', 'isAdminResource')")
     public ResponseEntity<?> updateUserPassword(@PathVariable("userId") Long userId,
                                         @Valid @RequestBody ResetPasswordPayload payload) {
         MangoUser user = userRepository.findById(userId)
@@ -103,7 +103,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
-    @PreAuthorize("hasRole('ADMIN') and hasPermission('#userId', 'nonAdminResource')")
+    @PreAuthorize("hasRole('ADMIN') and !hasPermission('#userId', 'isAdminResource')")
     public ResponseEntity<?> deleteUser(@PathVariable("userId") Long userId) {
         MangoUser user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("User is not found with id: %s", userId)));

@@ -12,8 +12,8 @@ public class ResourceOwnerEvaluator implements PermissionEvaluator {
     @Override
     @Transactional
     public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
-        if (permission instanceof Permission) {
-            return ((Permission) permission).isAllowed(authentication, targetDomainObject);
+        if (permission instanceof Permission instance) {
+            return instance.isAllowed(authentication, targetDomainObject);
         }
         return false;
     }
@@ -22,8 +22,8 @@ public class ResourceOwnerEvaluator implements PermissionEvaluator {
     @Transactional
     public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType,
                                  Object permission) {
-        if (permission instanceof Permission) {
-            return ((Permission) permission).isAllowed(authentication, targetId, targetType);
+        if (permission instanceof Permission instance) {
+            return instance.isAllowed(authentication, targetId, targetType);
         }
         return false;
     }

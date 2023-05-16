@@ -3,9 +3,11 @@
  * All rights reserved or may not! :)
  */
 
-package com.dqtri.mango.core.security;
+package com.dqtri.mango.core.security.impl;
 
 import com.dqtri.mango.core.model.CoreUser;
+import com.dqtri.mango.core.security.CoreAuthenticationToken;
+import com.dqtri.mango.core.security.CoreUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

@@ -3,10 +3,11 @@
  * All rights reserved or may not! :)
  */
 
-package com.dqtri.mango.core.security;
+package com.dqtri.mango.core.security.impl;
 
 import com.dqtri.mango.core.model.CoreUser;
 import com.dqtri.mango.core.repository.UserRepository;
+import com.dqtri.mango.core.security.CoreUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
