@@ -2,8 +2,8 @@ package com.dqtri.mango.submission.controller;
 
 import com.dqtri.mango.submission.exception.ConflictException;
 import com.dqtri.mango.submission.model.SubmissionUser;
-import com.dqtri.mango.submission.model.dto.payload.UserCreatingPayload;
 import com.dqtri.mango.submission.model.dto.PageCriteria;
+import com.dqtri.mango.submission.model.dto.payload.UserCreatingPayload;
 import com.dqtri.mango.submission.model.dto.payload.UserUpdatingPayload;
 import com.dqtri.mango.submission.model.enums.Role;
 import com.dqtri.mango.submission.repository.UserRepository;
@@ -67,7 +67,7 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createUser(@RequestBody @Valid UserCreatingPayload payload) {
         Optional<SubmissionUser> byEmail = userRepository.findByEmail(payload.getEmail());
-        if (byEmail.isPresent()){
+        if (byEmail.isPresent()) {
             throw new ConflictException(String.format("%s is already used", payload.getEmail()));
         }
         SubmissionUser user = new SubmissionUser();

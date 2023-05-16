@@ -63,7 +63,7 @@ public class AcceptAllSecurityCorsConfig {
     }
 
     @Bean
-    public AccessDeniedHandler accessDeniedHandler(){
+    public AccessDeniedHandler accessDeniedHandler() {
         return new AccessDeniedHandlerImpl();
     }
 }

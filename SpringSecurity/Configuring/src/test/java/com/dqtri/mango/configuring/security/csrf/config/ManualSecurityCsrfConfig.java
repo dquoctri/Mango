@@ -23,6 +23,7 @@ public class ManualSecurityCsrfConfig {
     /**
      * config Cross-Site Request Forgery (CSRF) attacks
      * Starting from Spring Security 4.x, the CSRF protection is enabled by default.
+     *
      * @param http
      * @return
      * @throws Exception
@@ -54,7 +55,7 @@ public class ManualSecurityCsrfConfig {
     }
 
     @Bean
-    public AccessDeniedHandler accessDeniedHandler(){
+    public AccessDeniedHandler accessDeniedHandler() {
         return new AccessDeniedHandlerImpl();
     }
 

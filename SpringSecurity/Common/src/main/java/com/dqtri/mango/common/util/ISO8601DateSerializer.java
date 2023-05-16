@@ -16,6 +16,7 @@ import java.util.Date;
 
 public class ISO8601DateSerializer extends JsonSerializer<Date> {
     public static final String DATE_FORMAT = "YYYY-MM-DDThh:mm:ss.sTZD";
+
     @Override
     public void serialize(Date value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         Assert.notNull(value, "NULL is not allowed.");

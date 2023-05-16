@@ -75,11 +75,11 @@ public class DefaultCorsIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void givenAcceptMethod_whenAddSubmission_thenCreated() throws Exception {
         mvc.perform(
-                post("/submissions")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(createSubmissionPayloadJson())
-                        .with(mockSubmitterUser())
-        ).andExpect(status().isCreated())
+                        post("/submissions")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(createSubmissionPayloadJson())
+                                .with(mockSubmitterUser())
+                ).andExpect(status().isCreated())
                 .andExpect(header().stringValues("Vary", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"))
                 .andExpect(header().string("Content-Type", "application/json"))
                 .andExpect(header().string("X-Content-Type-Options", "nosniff"))

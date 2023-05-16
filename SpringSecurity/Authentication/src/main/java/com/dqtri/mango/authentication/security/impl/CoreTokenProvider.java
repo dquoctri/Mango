@@ -6,9 +6,7 @@
 package com.dqtri.mango.authentication.security.impl;
 
 import com.dqtri.mango.authentication.model.dto.response.TokenResponse;
-import com.dqtri.mango.authentication.security.CoreAuthenticationToken;
 import com.dqtri.mango.authentication.security.TokenProvider;
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +22,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.Date;
 
@@ -54,7 +51,7 @@ public class CoreTokenProvider implements TokenProvider {
                 .setIssuer(issuer)
                 .signWith(SignatureAlgorithm.RS256, getPrivateKey())
                 .compact();
-            return new TokenResponse(accessToken);
+        return new TokenResponse(accessToken);
     }
 
     private PrivateKey getPrivateKey() throws NoSuchAlgorithmException, InvalidKeySpecException {
@@ -63,7 +60,7 @@ public class CoreTokenProvider implements TokenProvider {
         return keyFactory.generatePrivate(keySpecPKCS8);
     }
 
-    private Date getExpiryDate(){
+    private Date getExpiryDate() {
         Date now = new Date();
         return new Date(now.getTime() + expirationInMs);
     }

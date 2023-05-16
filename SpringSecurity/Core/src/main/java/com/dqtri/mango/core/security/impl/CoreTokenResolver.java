@@ -14,8 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
@@ -23,17 +21,9 @@ import org.springframework.stereotype.Component;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
-import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collection;
-import java.util.List;
-
-import static com.fasterxml.jackson.databind.type.LogicalType.Collection;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -52,7 +42,7 @@ public class CoreTokenResolver implements TokenResolver {
         Object authorities = body.get("authorities");
         String subject = body.getSubject();
         UserDetails userDetails = userDetailsService.loadUserByUsername(subject);
-        if (userDetails instanceof  CoreUserDetails coreUser){
+        if (userDetails instanceof CoreUserDetails coreUser) {
 
         }
         return new CoreAuthenticationToken(userDetails, userDetails.getAuthorities());

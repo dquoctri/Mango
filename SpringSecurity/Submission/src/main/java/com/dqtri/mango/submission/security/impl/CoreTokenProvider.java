@@ -6,9 +6,7 @@
 package com.dqtri.mango.submission.security.impl;
 
 import com.dqtri.mango.submission.model.dto.response.TokenResponse;
-import com.dqtri.mango.submission.security.CoreAuthenticationToken;
 import com.dqtri.mango.submission.security.TokenProvider;
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
@@ -31,13 +29,13 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class CoreTokenProvider implements TokenProvider {
 
-    @Value("${core.auth.issuer}")
+    @Value("${submission.auth.issuer}")
     private String issuer;
 
-    @Value("${core.auth.privateKey}")
+    @Value("${submission.auth.privateKey}")
     private String privateKey;
 
-    @Value("${core.auth.expirationInMs}")
+    @Value("${submission.auth.expirationInMs}")
     private long expirationInMs;
 
     @Override
@@ -53,7 +51,7 @@ public class CoreTokenProvider implements TokenProvider {
                 .setIssuer(issuer)
                 .signWith(SignatureAlgorithm.RS256, getPrivateKey())
                 .compact();
-            return new TokenResponse(accessToken);
+        return new TokenResponse(accessToken);
     }
 
     private PrivateKey getPrivateKey() throws NoSuchAlgorithmException, InvalidKeySpecException {
@@ -62,7 +60,7 @@ public class CoreTokenProvider implements TokenProvider {
         return keyFactory.generatePrivate(keySpecPKCS8);
     }
 
-    private Date getExpiryDate(){
+    private Date getExpiryDate() {
         Date now = new Date();
         return new Date(now.getTime() + expirationInMs);
     }

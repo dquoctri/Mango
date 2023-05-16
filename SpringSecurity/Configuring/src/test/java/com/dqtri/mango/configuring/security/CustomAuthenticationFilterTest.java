@@ -6,7 +6,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.assertj.core.api.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,7 +55,7 @@ public class CustomAuthenticationFilterTest {
     private CustomAuthenticationFilter authenticationFilter;
 
     @BeforeEach
-    public void setup(){
+    public void setup() {
         authenticationFilter = new CustomAuthenticationFilter(authenticationManager);
     }
 

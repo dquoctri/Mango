@@ -25,10 +25,11 @@ public class SecurityWithCsrfCookieConfig {
      * Our stateless API can't add the CSRF token like our MVC configuration because it doesn't generate any HTML view.
      * In that case, we can send the CSRF token in a cookie using CookieCsrfTokenRepository:
      * fetch(url, {
-     *   method: 'POST',
-     *   body: * data to send *,
-     *   headers: { 'X-XSRF-TOKEN':csrfToken },
+     * method: 'POST',
+     * body: * data to send *,
+     * headers: { 'X-XSRF-TOKEN':csrfToken },
      * })
+     *
      * @param http
      * @return
      * @throws Exception
@@ -49,7 +50,8 @@ public class SecurityWithCsrfCookieConfig {
                 .httpBasic().disable()
                 .logout().disable()
                 .exceptionHandling().authenticationEntryPoint(new UnauthorizedEntryPoint()).and()
-                .exceptionHandling().accessDeniedHandler(accessDeniedHandler());;
+                .exceptionHandling().accessDeniedHandler(accessDeniedHandler());
+        ;
         // @formatter:on
         return http.build();
     }
@@ -61,7 +63,7 @@ public class SecurityWithCsrfCookieConfig {
     }
 
     @Bean
-    public AccessDeniedHandler accessDeniedHandler(){
+    public AccessDeniedHandler accessDeniedHandler() {
         return new AccessDeniedHandlerImpl();
     }
 

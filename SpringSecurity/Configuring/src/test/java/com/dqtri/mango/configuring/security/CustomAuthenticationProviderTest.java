@@ -20,7 +20,7 @@ public class CustomAuthenticationProviderTest {
     AuthenticationProvider authenticationProvider = new CustomAuthenticationProvider();
 
     @Test
-    public void authenticate_givenToken_thenSuccess(){
+    public void authenticate_givenToken_thenSuccess() {
         CustomAuthenticationToken customAuthenticationToken = new CustomAuthenticationToken("Bearer header.payload.signature");
         Authentication authenticate = authenticationProvider.authenticate(customAuthenticationToken);
 
@@ -36,7 +36,7 @@ public class CustomAuthenticationProviderTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"Bearer abc", "Bearer test-failed"})
-    public void authenticate_givenInvalidToken_thenNull(String accessToken){
+    public void authenticate_givenInvalidToken_thenNull(String accessToken) {
         CustomAuthenticationToken customAuthenticationToken = new CustomAuthenticationToken(accessToken);
         Authentication authenticate = authenticationProvider.authenticate(customAuthenticationToken);
         //test
@@ -44,7 +44,7 @@ public class CustomAuthenticationProviderTest {
     }
 
     @Test
-    public void authenticate_givenNullAuthentication_thenException(){
+    public void authenticate_givenNullAuthentication_thenException() {
         Executable executable = () -> authenticationProvider.authenticate(null);
         //test
         IllegalArgumentException exception = assertThrows(
@@ -56,7 +56,7 @@ public class CustomAuthenticationProviderTest {
     }
 
     @Test
-    public void authenticate_givenNullToken_thenException(){
+    public void authenticate_givenNullToken_thenException() {
         CustomAuthenticationToken customAuthenticationToken = new CustomAuthenticationToken(null);
         Executable executable = () -> authenticationProvider.authenticate(customAuthenticationToken);
         //test
@@ -69,7 +69,7 @@ public class CustomAuthenticationProviderTest {
     }
 
     @Test
-    public void authenticate_givenUsernamePasswordToken_thenNull(){
+    public void authenticate_givenUsernamePasswordToken_thenNull() {
         var token = new UsernamePasswordAuthenticationToken("submitter", "submitter");
         Executable executable = () -> authenticationProvider.authenticate(token);
         //test
@@ -82,13 +82,13 @@ public class CustomAuthenticationProviderTest {
     }
 
     @Test
-    public void support_givenCustomToken_thenTrue(){
+    public void support_givenCustomToken_thenTrue() {
         boolean supports = authenticationProvider.supports(CustomAuthenticationToken.class);
         assertThat(supports).isTrue();
     }
 
     @Test
-    public void support_givenUsernamePasswordToken_thenFalse(){
+    public void support_givenUsernamePasswordToken_thenFalse() {
         boolean supports = authenticationProvider.supports(UsernamePasswordAuthenticationToken.class);
         assertThat(supports).isFalse();
     }

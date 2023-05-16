@@ -45,8 +45,8 @@ public class SecurityConfig {
                 .anonymous().disable()
                 .authorizeHttpRequests((requests) -> requests
 //                        .dispatcherTypeMatchers(DispatcherType.ASYNC, DispatcherType.FORWARD).permitAll()
-                        .requestMatchers( "/login").permitAll()
-                        .anyRequest().authenticated()
+                                .requestMatchers("/login").permitAll()
+                                .anyRequest().authenticated()
                 )
 
                 .formLogin().disable()
@@ -91,12 +91,12 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationEntryPoint unauthorizedHandler(){
+    public AuthenticationEntryPoint unauthorizedHandler() {
         return new UnauthorizedEntryPoint();
     }
 
     @Bean
-    public AccessDeniedHandler accessDeniedHandler(){
+    public AccessDeniedHandler accessDeniedHandler() {
         return new AccessDeniedHandlerImpl();
     }
 

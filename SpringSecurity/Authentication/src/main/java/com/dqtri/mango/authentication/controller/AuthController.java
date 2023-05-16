@@ -9,10 +9,10 @@ import com.dqtri.mango.authentication.exception.ConflictException;
 import com.dqtri.mango.authentication.model.CoreUser;
 import com.dqtri.mango.authentication.model.dto.payload.LoginPayload;
 import com.dqtri.mango.authentication.model.dto.payload.RegisterPayload;
+import com.dqtri.mango.authentication.model.dto.response.TokenResponse;
 import com.dqtri.mango.authentication.model.enums.Role;
 import com.dqtri.mango.authentication.repository.UserRepository;
 import com.dqtri.mango.authentication.security.TokenProvider;
-import com.dqtri.mango.authentication.model.dto.response.TokenResponse;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,9 +38,9 @@ public class AuthController {
     private final TokenProvider tokenProvider;
     private final UserRepository userRepository;
 
-    @PostMapping(value = "/login", consumes = { MediaType.APPLICATION_JSON_VALUE })
+    @PostMapping(value = "/login", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> login(@RequestBody @Valid LoginPayload login) throws Exception {
-        Authentication authentication = authenticationManager.authenticate (
+        Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(login.getEmail(), login.getPassword())
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -61,9 +61,9 @@ public class AuthController {
         return ResponseEntity.ok(saved);
     }
 
-    private void checkConflictUserEmail(String email){
+    private void checkConflictUserEmail(String email) {
         Optional<CoreUser> existedUser = userRepository.findByEmail(email);
-        if (existedUser.isPresent()){
+        if (existedUser.isPresent()) {
             throw new ConflictException(String.format("%s is already in use", email));
         }
     }

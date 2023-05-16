@@ -22,7 +22,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         validate(authentication);
         if (authentication.getName().startsWith(BEARER)) {
             String token = authentication.getName().substring(BEARER.length());
-            if ("header.payload.signature".equals(token)){
+            if ("header.payload.signature".equals(token)) {
                 ConfigUser configUser = new ConfigUser();
                 configUser.setEmail("submitter@mango.dqtri.com");
                 configUser.setRole(Role.SUBMITTER);

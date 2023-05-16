@@ -1,4 +1,3 @@
-
 package com.dqtri.mango.core.security;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

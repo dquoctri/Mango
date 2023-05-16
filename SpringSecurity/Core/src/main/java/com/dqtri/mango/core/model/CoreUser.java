@@ -1,7 +1,7 @@
 package com.dqtri.mango.core.model;
 
-import com.dqtri.mango.core.model.enums.Role;
 import com.dqtri.mango.common.model.BaseEntity;
+import com.dqtri.mango.core.model.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

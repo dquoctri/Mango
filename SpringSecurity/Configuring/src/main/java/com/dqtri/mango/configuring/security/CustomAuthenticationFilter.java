@@ -23,7 +23,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
     private static final String BEARER = "Bearer ";
     private static final String BASIC = "Basic ";
 
-   private final AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -33,12 +33,12 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
                 if (StringUtils.hasText(accessToken) && tokenValidFormat(accessToken)) {
                     CustomAuthenticationToken customAuthenticationToken = new CustomAuthenticationToken(accessToken);
                     Authentication authentication = authenticationManager.authenticate(customAuthenticationToken);
-                    if (authentication != null){
+                    if (authentication != null) {
                         log.debug("Logging in with [{}]", authentication.getPrincipal());
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                     }
                 }
-            } catch (Exception e){
+            } catch (Exception e) {
                 log.error("Could not set authentication in security context", e);
             }
         }

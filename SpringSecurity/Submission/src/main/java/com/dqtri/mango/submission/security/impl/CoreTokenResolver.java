@@ -32,7 +32,7 @@ public class CoreTokenResolver implements TokenResolver {
 
     private final UserDetailsService userDetailsService;
 
-    @Value("${core.auth.publicKey}")
+    @Value("${submission.auth.publicKey}")
     private String publicKey;
 
     @Override
@@ -42,7 +42,7 @@ public class CoreTokenResolver implements TokenResolver {
         Object authorities = body.get("authorities");
         String subject = body.getSubject();
         UserDetails userDetails = userDetailsService.loadUserByUsername(subject);
-        if (userDetails instanceof  CoreUserDetails coreUser){
+        if (userDetails instanceof CoreUserDetails coreUser) {
 
         }
         return new CoreAuthenticationToken(userDetails, userDetails.getAuthorities());

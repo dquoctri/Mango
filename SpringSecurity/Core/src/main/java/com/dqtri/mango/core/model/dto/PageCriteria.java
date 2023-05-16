@@ -15,7 +15,7 @@ public final class PageCriteria {
     @Min(1)
     private int pageSize = 25;
 
-    public Pageable toPageable(String sortProperties){
+    public Pageable toPageable(String sortProperties) {
         Sort sort = Sort.by(sortProperties);
         return PageRequest.of(pageSize, pageNumber, sort);
     }

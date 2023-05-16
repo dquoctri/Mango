@@ -22,7 +22,7 @@ public class PersistentConfig {
     @Bean
     public AuditorAware<String> auditorProvider() {
         return () -> getCurrentAuthentication().map(authentication -> {
-            if (authentication.getPrincipal() instanceof UserDetails currentUser){
+            if (authentication.getPrincipal() instanceof UserDetails currentUser) {
                 return currentUser.getUsername();
             }
             return null;

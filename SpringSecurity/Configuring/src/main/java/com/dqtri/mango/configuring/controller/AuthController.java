@@ -22,9 +22,9 @@ import java.util.List;
 @RestController
 public class AuthController {
 
-    @PostMapping(value = "/login", consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @PostMapping(value = "/login", consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> login(@RequestBody @Valid LoginPayload login, final HttpServletRequest request) {
-        if (!"submitter@mango.dqtri.com".equals(login.getEmail()) || !"submitter".equals(login.getPassword())){
+        if (!"submitter@mango.dqtri.com".equals(login.getEmail()) || !"submitter".equals(login.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         List<SimpleGrantedAuthority> simpleGrantedAuthorities = List.of(new SimpleGrantedAuthority("ROLE_SUBMITTER"));

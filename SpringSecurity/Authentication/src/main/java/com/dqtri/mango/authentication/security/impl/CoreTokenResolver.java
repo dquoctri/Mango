@@ -4,18 +4,12 @@ import com.dqtri.mango.authentication.security.CoreAuthenticationToken;
 import com.dqtri.mango.authentication.security.CoreUserDetails;
 import com.dqtri.mango.authentication.security.TokenResolver;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureException;
-import io.jsonwebtoken.UnsupportedJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
@@ -23,17 +17,9 @@ import org.springframework.stereotype.Component;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
-import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collection;
-import java.util.List;
-
-import static com.fasterxml.jackson.databind.type.LogicalType.Collection;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -42,7 +28,7 @@ public class CoreTokenResolver implements TokenResolver {
 
     private final UserDetailsService userDetailsService;
 
-    @Value("${core.auth.publicKey}")
+    @Value("${authentication.auth.publicKey}")
     private String publicKey;
 
     @Override
@@ -52,8 +38,8 @@ public class CoreTokenResolver implements TokenResolver {
         Object authorities = body.get("authorities");
         String subject = body.getSubject();
         UserDetails userDetails = userDetailsService.loadUserByUsername(subject);
-        if (userDetails instanceof  CoreUserDetails coreUser){
-
+        if (userDetails instanceof CoreUserDetails coreUser) {
+            return new CoreAuthenticationToken(coreUser, coreUser.getAuthorities());
         }
         return new CoreAuthenticationToken(userDetails, userDetails.getAuthorities());
     }
@@ -68,20 +54,8 @@ public class CoreTokenResolver implements TokenResolver {
         try {
             PublicKey publicKey = getPublicKey();
             return Jwts.parser().setSigningKey(publicKey).parseClaimsJws(accessToken);
-        } catch (SignatureException ex) {
-            log.error("Invalid JWT signature", ex);
-        } catch (MalformedJwtException ex) {
-            log.error("Invalid JWT token", ex);
-        } catch (ExpiredJwtException ex) {
-            log.error("Expired JWT token", ex);
-        } catch (UnsupportedJwtException ex) {
-            log.error("Unsupported JWT token", ex);
-        } catch (IllegalArgumentException ex) {
-            log.error("JWT claims string is empty.", ex);
-        } catch (NoSuchAlgorithmException e) {
-            log.error("No such algorithm", e);
-        } catch (InvalidKeySpecException e) {
-            log.error("invalid key spec", e);
+        } catch (Exception ex) {
+            log.error("Invalid JWTs", ex);
         }
         return null;
     }

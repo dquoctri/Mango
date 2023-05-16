@@ -29,7 +29,7 @@ public class Submission extends BaseEntity {
     private String subject;
 
     @CreatedBy
-    @Column(name = "created_by",updatable = false)
+    @Column(name = "created_by", updatable = false)
     private String createdBy;
 
     @LastModifiedBy

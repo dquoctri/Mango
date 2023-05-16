@@ -2,9 +2,9 @@ package com.dqtri.mango.authentication.controller;
 
 import com.dqtri.mango.authentication.exception.ConflictException;
 import com.dqtri.mango.authentication.model.CoreUser;
+import com.dqtri.mango.authentication.model.dto.PageCriteria;
 import com.dqtri.mango.authentication.model.dto.payload.ResetPasswordPayload;
 import com.dqtri.mango.authentication.model.dto.payload.UserCreatingPayload;
-import com.dqtri.mango.authentication.model.dto.PageCriteria;
 import com.dqtri.mango.authentication.model.dto.payload.UserUpdatingPayload;
 import com.dqtri.mango.authentication.model.enums.Role;
 import com.dqtri.mango.authentication.repository.UserRepository;
@@ -71,7 +71,7 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createUser(@RequestBody @Valid UserCreatingPayload payload) {
         Optional<CoreUser> byEmail = userRepository.findByEmail(payload.getEmail());
-        if (byEmail.isPresent()){
+        if (byEmail.isPresent()) {
             throw new ConflictException(String.format("%s is already used", payload.getEmail()));
         }
         CoreUser user = new CoreUser();
@@ -95,7 +95,7 @@ public class UserController {
     @PutMapping("/{userId}/password")
     @PreAuthorize("hasRole('ADMIN') and hasPermission('#userId', 'nonAdminResource')")
     public ResponseEntity<?> updateUserPassword(@PathVariable("userId") Long userId,
-                                        @Valid @RequestBody ResetPasswordPayload payload) {
+                                                @Valid @RequestBody ResetPasswordPayload payload) {
         CoreUser user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("User is not found with id: %s", userId)));
         user.setPassword(passwordEncoder.encode(payload.getPassword()));

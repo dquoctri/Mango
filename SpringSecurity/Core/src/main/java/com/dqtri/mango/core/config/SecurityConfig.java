@@ -89,12 +89,12 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationEntryPoint unauthorizedHandler(){
+    public AuthenticationEntryPoint unauthorizedHandler() {
         return new CoreUnauthorizedEntryPoint();
     }
 
     @Bean
-    public AccessDeniedHandler accessDeniedHandler(){
+    public AccessDeniedHandler accessDeniedHandler() {
         return new AccessDeniedHandlerImpl();
     }
 

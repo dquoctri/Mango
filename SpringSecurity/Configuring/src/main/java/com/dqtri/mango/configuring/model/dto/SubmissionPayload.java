@@ -17,7 +17,7 @@ public class SubmissionPayload {
     @NotBlank
     private String value;
 
-    public Submission toSubmission(){
+    public Submission toSubmission() {
         Submission submission = new Submission();
         submission.setValue(this.value);
         return submission;

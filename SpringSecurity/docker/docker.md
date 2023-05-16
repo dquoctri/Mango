@@ -14,11 +14,22 @@ docker exec -it isubmit-mysql sh -c "mysql -uroot -proot125p -e 'create database
 ```
 docker run --name submission-postgres -p5432:5432 -e POSTGRES_DB=submission-postgres -e POSTGRES_PASSWORD=postgres -v core_postgres_pgdata:/var/lib/postgresql/data --restart always -d postgres:15.3
 ```
-setup empty postgres database:
+
+#### setup empty postgres database:
 ```
 docker exec -it submission-postgres sh -c "createdb -U postgres auth-postgres;"
 ```
+## 3. MSSQL container
 
+```
+docker run --name mango-mssql -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=mangoStrong(!)Password" -e "MSSQL_PID=Developer" -p 1433:1433 -d mcr.microsoft.com/mssql/server:2022-latest
+
+```
+
+### setup empty mssql database:
+```
+docker exec -it mango-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P mangoStrong(!)Password -Q "CREATE DATABASE mango-mssql"
+```
 
 # 2. Mailhog
 ```
