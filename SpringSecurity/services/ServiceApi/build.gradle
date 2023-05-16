@@ -19,6 +19,7 @@ repositories {
 }
 
 dependencies {
+	implementation 'com.microsoft.sqlserver:mssql-jdbc:12.2.0.jre11'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'

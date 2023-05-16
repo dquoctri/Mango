@@ -5,13 +5,14 @@
 
 package com.dqtri.mango.authentication.controller;
 
-import com.dqtri.mango.authentication.model.MangoUser;
-import com.dqtri.mango.authentication.model.dto.LoginPayload;
-import com.dqtri.mango.authentication.model.dto.RegisterPayload;
+import com.dqtri.mango.authentication.exception.ConflictException;
+import com.dqtri.mango.authentication.model.CoreUser;
+import com.dqtri.mango.authentication.model.dto.payload.LoginPayload;
+import com.dqtri.mango.authentication.model.dto.payload.RegisterPayload;
 import com.dqtri.mango.authentication.model.enums.Role;
 import com.dqtri.mango.authentication.repository.UserRepository;
 import com.dqtri.mango.authentication.security.TokenProvider;
-import com.dqtri.mango.authentication.security.TokenResponse;
+import com.dqtri.mango.authentication.model.dto.response.TokenResponse;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @RestController
@@ -50,12 +51,21 @@ public class AuthController {
     @PostMapping("/register")
     @Transactional
     public ResponseEntity<?> register(@RequestBody @Valid RegisterPayload register) {
-        MangoUser user = new MangoUser();
+        checkConflictUserEmail(register.getEmail());
+
+        CoreUser user = new CoreUser();
         user.setEmail(register.getEmail());
         user.setPassword(passwordEncoder.encode(register.getPassword()));
         user.setRole(Role.SUBMITTER);
-        MangoUser saved = userRepository.save(user);
+        CoreUser saved = userRepository.save(user);
         return ResponseEntity.ok(saved);
+    }
+
+    private void checkConflictUserEmail(String email){
+        Optional<CoreUser> existedUser = userRepository.findByEmail(email);
+        if (existedUser.isPresent()){
+            throw new ConflictException(String.format("%s is already in use", email));
+        }
     }
 
     @PostMapping("forgot_password")

@@ -1,11 +1,11 @@
 package com.dqtri.mango.authentication.controller;
 
 import com.dqtri.mango.authentication.exception.ConflictException;
-import com.dqtri.mango.authentication.model.MangoUser;
-import com.dqtri.mango.authentication.model.dto.ResetPasswordPayload;
-import com.dqtri.mango.authentication.model.dto.UserCreatingPayload;
+import com.dqtri.mango.authentication.model.CoreUser;
+import com.dqtri.mango.authentication.model.dto.payload.ResetPasswordPayload;
+import com.dqtri.mango.authentication.model.dto.payload.UserCreatingPayload;
 import com.dqtri.mango.authentication.model.dto.PageCriteria;
-import com.dqtri.mango.authentication.model.dto.UserUpdatingPayload;
+import com.dqtri.mango.authentication.model.dto.payload.UserUpdatingPayload;
 import com.dqtri.mango.authentication.model.enums.Role;
 import com.dqtri.mango.authentication.repository.UserRepository;
 import com.dqtri.mango.authentication.security.UserPrincipal;
@@ -45,7 +45,7 @@ public class UserController {
     public ResponseEntity<?> getUsers(@RequestParam(required = false) @Valid PageCriteria pageCriteria
     ) {
         Pageable pageable = pageCriteria.toPageable("pk");
-        Page<MangoUser> users = userRepository.findAll(pageable);
+        Page<CoreUser> users = userRepository.findAll(pageable);
         return ResponseEntity.ok(users);
     }
 
@@ -53,7 +53,7 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getUser(@PathVariable("userId") Long userId
     ) {
-        MangoUser user = userRepository.findById(userId)
+        CoreUser user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("User is not found with id: %s", userId)));
         return ResponseEntity.ok(user);
     }
@@ -63,49 +63,49 @@ public class UserController {
     public ResponseEntity<?> getMyProfiles(@UserPrincipal User currentUser
     ) {
         //TODO:
-        MangoUser byEmail = userRepository.findByEmail(currentUser.getUsername()).orElse(new MangoUser());
+        CoreUser byEmail = userRepository.findByEmail(currentUser.getUsername()).orElse(new CoreUser());
         return ResponseEntity.ok(byEmail);
     }
 
     @PostMapping(value = "", consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createUser(@RequestBody @Valid UserCreatingPayload payload) {
-        Optional<MangoUser> byEmail = userRepository.findByEmail(payload.getEmail());
+        Optional<CoreUser> byEmail = userRepository.findByEmail(payload.getEmail());
         if (byEmail.isPresent()){
             throw new ConflictException(String.format("%s is already used", payload.getEmail()));
         }
-        MangoUser user = new MangoUser();
+        CoreUser user = new CoreUser();
         user.setEmail(payload.getEmail());
         user.setPassword(passwordEncoder.encode(payload.getPassword()));
         user.setRole(payload.getRole());
-        MangoUser saved = userRepository.save(user);
+        CoreUser saved = userRepository.save(user);
         return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }
 
     @PutMapping("/{userId}")
-    @PreAuthorize("hasRole('ADMIN') and !hasPermission('#userId', 'isAdminResource')")
+    @PreAuthorize("hasRole('ADMIN') and hasPermission('#userId', 'nonAdminResource')")
     public ResponseEntity<?> updateUser(@PathVariable("userId") Long userId,
                                         @Valid @RequestBody UserUpdatingPayload payload) {
-        MangoUser user = userRepository.findById(userId)
+        CoreUser user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("User is not found with id: %s", userId)));
         user.setRole(payload.getRole());
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{userId}/password")
-    @PreAuthorize("hasRole('ADMIN') and !hasPermission('#userId', 'isAdminResource')")
+    @PreAuthorize("hasRole('ADMIN') and hasPermission('#userId', 'nonAdminResource')")
     public ResponseEntity<?> updateUserPassword(@PathVariable("userId") Long userId,
                                         @Valid @RequestBody ResetPasswordPayload payload) {
-        MangoUser user = userRepository.findById(userId)
+        CoreUser user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("User is not found with id: %s", userId)));
         user.setPassword(passwordEncoder.encode(payload.getPassword()));
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{userId}")
-    @PreAuthorize("hasRole('ADMIN') and !hasPermission('#userId', 'isAdminResource')")
+    @PreAuthorize("hasRole('ADMIN') and hasPermission('#userId', 'nonAdminResource')")
     public ResponseEntity<?> deleteUser(@PathVariable("userId") Long userId) {
-        MangoUser user = userRepository.findById(userId)
+        CoreUser user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("User is not found with id: %s", userId)));
         user.setRole(Role.NONE);
         return ResponseEntity.ok().build();

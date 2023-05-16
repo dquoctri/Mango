@@ -5,13 +5,13 @@
 
 package com.dqtri.mango.authentication.repository;
 
-import com.dqtri.mango.authentication.model.MangoUser;
+import com.dqtri.mango.authentication.model.CoreUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<MangoUser, Long> {
-    Optional<MangoUser> findByEmail(String email);
+public interface UserRepository extends JpaRepository<CoreUser, Long> {
+    Optional<CoreUser> findByEmail(String email);
 }

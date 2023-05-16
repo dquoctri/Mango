@@ -20,7 +20,8 @@ public class ResourceOwnerEvaluator implements PermissionEvaluator {
 
     @Override
     @Transactional
-    public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
+    public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType,
+                                 Object permission) {
         if (permission instanceof Permission instance) {
             return instance.isAllowed(authentication, targetId, targetType);
         }

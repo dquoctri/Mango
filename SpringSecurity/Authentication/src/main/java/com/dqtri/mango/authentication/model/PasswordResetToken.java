@@ -32,7 +32,7 @@ public class PasswordResetToken extends BaseEntity {
     @Column(name = "is_dirty")
     private boolean isDirty;
 
-    @ManyToOne(targetEntity = MangoUser.class, fetch = FetchType.EAGER)
+    @ManyToOne(targetEntity = CoreUser.class, fetch = FetchType.EAGER)
     @JoinColumn(nullable = false, name = "user_fk")
-    private MangoUser user;
+    private CoreUser user;
 }

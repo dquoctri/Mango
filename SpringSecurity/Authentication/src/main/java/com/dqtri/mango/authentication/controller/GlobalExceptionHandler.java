@@ -5,6 +5,7 @@
 
 package com.dqtri.mango.authentication.controller;
 
+import com.dqtri.mango.authentication.exception.ConflictException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,19 +21,25 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<Object> handleAuthenticationException(AuthenticationException e) {
+    public ResponseEntity<?> handleAuthenticationException(AuthenticationException e) {
         log.error(e.getMessage(), e);
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException e) {
+    public ResponseEntity<?> handleAccessDeniedException(AccessDeniedException e) {
         log.error(e.getMessage(), e);
         return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<?> handleAccessDeniedException(ConflictException e) {
+        log.error(e.getMessage(), e);
+        return new ResponseEntity<>(HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Object> handleApplicationException(Exception e, WebRequest request) {
+    public ResponseEntity<?> handleApplicationException(Exception e, WebRequest request) {
         log.error(e.getMessage(), e);
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }

@@ -5,11 +5,12 @@
 
 package com.dqtri.mango.authentication.config;
 
-import com.dqtri.mango.authentication.security.AuthenticationFilter;
+import com.dqtri.mango.authentication.security.CoreAuthenticationFilter;
+import com.dqtri.mango.authentication.security.CoreUnauthorizedEntryPoint;
+import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -19,7 +20,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -49,10 +53,11 @@ public class SecurityConfig {
                 )
                 .formLogin().disable()
                 .httpBasic().disable()
-                .logout().disable();
+                .logout().disable()
+                .addFilterBefore(authenticationFilter(http), UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler()).and()
+                .exceptionHandling().accessDeniedHandler(accessDeniedHandler());
         // @formatter:on
-        AuthenticationFilter authenticationFilter = new AuthenticationFilter(authenticationManager(http));
-        http.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
@@ -61,7 +66,8 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("*"));
-        config.setAllowedHeaders(List.of("Content-Type", "X-Frame-Options", "X-XSS-Protection", "X-Content-Type-Options", "Authorization"));
+        config.setAllowedHeaders(List.of("Content-Type", "X-Frame-Options", "X-XSS-Protection",
+                "X-Content-Type-Options", "Authorization"));
         config.setAllowedMethods(List.of("OPTIONS", "GET", "POST", "PUT", "DELETE"));
         config.setExposedHeaders(List.of("ERROR_CODE", "CONTENT_DISPOSITION"));
         source.registerCorsConfiguration("/**", config);
@@ -74,6 +80,22 @@ public class SecurityConfig {
         builder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
         builder.authenticationProvider(authenticationProvider);
         return builder.build();
+    }
+
+    @Bean
+    public Filter authenticationFilter(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        return new CoreAuthenticationFilter(builder.build());
+    }
+
+    @Bean
+    public AuthenticationEntryPoint unauthorizedHandler(){
+        return new CoreUnauthorizedEntryPoint();
+    }
+
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler(){
+        return new AccessDeniedHandlerImpl();
     }
 
     @Bean
