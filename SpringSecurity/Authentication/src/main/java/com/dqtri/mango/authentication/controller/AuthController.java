@@ -52,12 +52,8 @@ public class AuthController {
     @Transactional
     public ResponseEntity<?> register(@RequestBody @Valid RegisterPayload register) {
         checkConflictUserEmail(register.getEmail());
-
-        CoreUser user = new CoreUser();
-        user.setEmail(register.getEmail());
-        user.setPassword(passwordEncoder.encode(register.getPassword()));
-        user.setRole(Role.SUBMITTER);
-        CoreUser saved = userRepository.save(user);
+        CoreUser coreUser = createCoreUser(register);
+        CoreUser saved = userRepository.save(coreUser);
         return ResponseEntity.ok(saved);
     }
 
@@ -66,6 +62,14 @@ public class AuthController {
         if (existedUser.isPresent()) {
             throw new ConflictException(String.format("%s is already in use", email));
         }
+    }
+
+    private CoreUser createCoreUser(RegisterPayload register){
+        CoreUser user = new CoreUser();
+        user.setEmail(register.getEmail());
+        user.setPassword(passwordEncoder.encode(register.getPassword()));
+        user.setRole(Role.USER);
+        return user;
     }
 
     @PostMapping("forgot_password")

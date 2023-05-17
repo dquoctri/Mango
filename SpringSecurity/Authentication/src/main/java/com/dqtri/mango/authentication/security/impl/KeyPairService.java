@@ -1,5 +1,7 @@
 package com.dqtri.mango.authentication.security.impl;
 
+import org.springframework.stereotype.Service;
+
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -13,6 +15,7 @@ import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
+@Service
 public class KeyPairService {
 
     public KeyPair createKeyPair() throws NoSuchAlgorithmException {

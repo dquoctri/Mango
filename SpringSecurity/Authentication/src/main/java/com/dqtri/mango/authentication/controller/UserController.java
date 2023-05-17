@@ -8,9 +8,11 @@ import com.dqtri.mango.authentication.model.dto.payload.UserCreatingPayload;
 import com.dqtri.mango.authentication.model.dto.payload.UserUpdatingPayload;
 import com.dqtri.mango.authentication.model.enums.Role;
 import com.dqtri.mango.authentication.repository.UserRepository;
+import com.dqtri.mango.authentication.security.MangoUserDetails;
 import com.dqtri.mango.authentication.security.UserPrincipal;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,7 +20,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,8 +31,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Optional;
-
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/users")
@@ -42,52 +41,53 @@ public class UserController {
 
     @GetMapping("")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> getUsers(@RequestParam(required = false) @Valid PageCriteria pageCriteria
-    ) {
-        Pageable pageable = pageCriteria.toPageable("pk");
+    public ResponseEntity<?> getUsers(@RequestParam(required = false) @Valid PageCriteria pageCriteria) {
+        Pageable pageable = pageCriteria.toPageable("email");
         Page<CoreUser> users = userRepository.findAll(pageable);
         return ResponseEntity.ok(users);
     }
 
     @GetMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> getUser(@PathVariable("userId") Long userId
-    ) {
-        CoreUser user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("User is not found with id: %s", userId)));
+    public ResponseEntity<?> getUser(@PathVariable("userId") Long userId) {
+        CoreUser user = getUserOrElseThrow(userId);
         return ResponseEntity.ok(user);
     }
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> getMyProfiles(@UserPrincipal User currentUser
-    ) {
-        //TODO:
-        CoreUser byEmail = userRepository.findByEmail(currentUser.getUsername()).orElse(new CoreUser());
-        return ResponseEntity.ok(byEmail);
+    public ResponseEntity<?> getMyProfiles(@UserPrincipal MangoUserDetails currentUser) {
+        return ResponseEntity.ok(currentUser.getCoreUser());
     }
 
     @PostMapping(value = "", consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createUser(@RequestBody @Valid UserCreatingPayload payload) {
-        Optional<CoreUser> byEmail = userRepository.findByEmail(payload.getEmail());
-        if (byEmail.isPresent()) {
-            throw new ConflictException(String.format("%s is already used", payload.getEmail()));
+        checkConflictUser(payload.getEmail());
+        CoreUser user = createSubmissionUser(payload);
+        CoreUser saved = userRepository.save(user);
+        return new ResponseEntity<>(saved, HttpStatus.CREATED);
+    }
+
+    private void checkConflictUser(String email){
+        if (userRepository.existsByEmail(email)) {
+            throw new ConflictException(String.format("%s is already used", email));
         }
+    }
+
+    private CoreUser createSubmissionUser(@NotNull UserCreatingPayload payload){
         CoreUser user = new CoreUser();
         user.setEmail(payload.getEmail());
         user.setPassword(passwordEncoder.encode(payload.getPassword()));
         user.setRole(payload.getRole());
-        CoreUser saved = userRepository.save(user);
-        return new ResponseEntity<>(saved, HttpStatus.CREATED);
+        return user;
     }
 
     @PutMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN') and hasPermission('#userId', 'nonAdminResource')")
     public ResponseEntity<?> updateUser(@PathVariable("userId") Long userId,
                                         @Valid @RequestBody UserUpdatingPayload payload) {
-        CoreUser user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("User is not found with id: %s", userId)));
+        CoreUser user = getUserOrElseThrow(userId);
         user.setRole(payload.getRole());
         return ResponseEntity.ok().build();
     }
@@ -96,8 +96,7 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN') and hasPermission('#userId', 'nonAdminResource')")
     public ResponseEntity<?> updateUserPassword(@PathVariable("userId") Long userId,
                                                 @Valid @RequestBody ResetPasswordPayload payload) {
-        CoreUser user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("User is not found with id: %s", userId)));
+        CoreUser user = getUserOrElseThrow(userId);
         user.setPassword(passwordEncoder.encode(payload.getPassword()));
         return ResponseEntity.ok().build();
     }
@@ -105,9 +104,13 @@ public class UserController {
     @DeleteMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN') and hasPermission('#userId', 'nonAdminResource')")
     public ResponseEntity<?> deleteUser(@PathVariable("userId") Long userId) {
-        CoreUser user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("User is not found with id: %s", userId)));
+        CoreUser user = getUserOrElseThrow(userId);
         user.setRole(Role.NONE);
         return ResponseEntity.ok().build();
+    }
+
+    private CoreUser getUserOrElseThrow(@NotNull Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("User is not found with id: %s", userId)));
     }
 }

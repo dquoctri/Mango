@@ -6,5 +6,5 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
 public interface TokenResolver {
-    Authentication verifyToken(String token) throws NoSuchAlgorithmException, InvalidKeySpecException;
+    Authentication verifyToken(String token) throws Exception;
 }

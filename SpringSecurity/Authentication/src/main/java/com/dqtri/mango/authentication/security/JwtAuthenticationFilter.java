@@ -17,7 +17,7 @@ import java.io.IOException;
 
 @Slf4j
 @RequiredArgsConstructor
-public class CoreAuthenticationFilter extends OncePerRequestFilter {
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER = "Bearer ";
@@ -31,8 +31,8 @@ public class CoreAuthenticationFilter extends OncePerRequestFilter {
             try {
                 String accessToken = getAuthorizationToken(request);
                 if (StringUtils.hasText(accessToken) && tokenValid(accessToken)) {
-                    CoreAuthenticationToken coreAuthenticationToken = new CoreAuthenticationToken(accessToken);
-                    Authentication authentication = authenticationManager.authenticate(coreAuthenticationToken);
+                    JwtAuthenticationToken jwtAuthenticationToken = new JwtAuthenticationToken(accessToken);
+                    Authentication authentication = authenticationManager.authenticate(jwtAuthenticationToken);
                     if (authentication != null) {
                         log.debug("Logging in with [{}]", authentication.getPrincipal());
                         SecurityContextHolder.getContext().setAuthentication(authentication);

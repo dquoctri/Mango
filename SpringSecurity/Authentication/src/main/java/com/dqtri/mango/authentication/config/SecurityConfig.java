@@ -5,8 +5,8 @@
 
 package com.dqtri.mango.authentication.config;
 
-import com.dqtri.mango.authentication.security.CoreAuthenticationFilter;
-import com.dqtri.mango.authentication.security.CoreUnauthorizedEntryPoint;
+import com.dqtri.mango.authentication.security.JwtAuthenticationFilter;
+import com.dqtri.mango.authentication.security.UnauthorizedEntryPoint;
 import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -85,12 +85,12 @@ public class SecurityConfig {
     @Bean
     public Filter authenticationFilter(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
-        return new CoreAuthenticationFilter(builder.build());
+        return new JwtAuthenticationFilter(builder.build());
     }
 
     @Bean
     public AuthenticationEntryPoint unauthorizedHandler() {
-        return new CoreUnauthorizedEntryPoint();
+        return new UnauthorizedEntryPoint();
     }
 
     @Bean

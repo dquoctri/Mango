@@ -10,16 +10,16 @@ import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
 
-public class CoreAuthenticationToken extends AbstractAuthenticationToken {
+public class JwtAuthenticationToken extends AbstractAuthenticationToken {
     private final Object principal;
 
-    public CoreAuthenticationToken(Object principal, Collection<? extends GrantedAuthority> authorities) {
+    public JwtAuthenticationToken(Object principal, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.principal = principal;
         super.setAuthenticated(true);
     }
 
-    public CoreAuthenticationToken(Object principal) {
+    public JwtAuthenticationToken(Object principal) {
         super(null);
         this.principal = principal;
     }

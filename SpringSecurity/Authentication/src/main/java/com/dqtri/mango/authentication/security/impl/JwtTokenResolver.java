@@ -1,7 +1,7 @@
 package com.dqtri.mango.authentication.security.impl;
 
-import com.dqtri.mango.authentication.security.CoreAuthenticationToken;
-import com.dqtri.mango.authentication.security.CoreUserDetails;
+import com.dqtri.mango.authentication.security.JwtAuthenticationToken;
+import com.dqtri.mango.authentication.security.MangoUserDetails;
 import com.dqtri.mango.authentication.security.TokenResolver;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -24,7 +24,7 @@ import java.util.Base64;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class CoreTokenResolver implements TokenResolver {
+public class JwtTokenResolver implements TokenResolver {
 
     private final UserDetailsService userDetailsService;
 
@@ -38,10 +38,10 @@ public class CoreTokenResolver implements TokenResolver {
         Object authorities = body.get("authorities");
         String subject = body.getSubject();
         UserDetails userDetails = userDetailsService.loadUserByUsername(subject);
-        if (userDetails instanceof CoreUserDetails coreUser) {
-            return new CoreAuthenticationToken(coreUser, coreUser.getAuthorities());
+        if (userDetails instanceof MangoUserDetails coreUser) {
+            return new JwtAuthenticationToken(coreUser, coreUser.getAuthorities());
         }
-        return new CoreAuthenticationToken(userDetails, userDetails.getAuthorities());
+        return new JwtAuthenticationToken(userDetails, userDetails.getAuthorities());
     }
 
     private PublicKey getPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException {

@@ -1,5 +1,6 @@
 package com.dqtri.mango.submission.security.impl;
 
+import com.dqtri.mango.submission.model.SubmissionUser;
 import com.dqtri.mango.submission.security.CoreAuthenticationToken;
 import com.dqtri.mango.submission.security.CoreUserDetails;
 import com.dqtri.mango.submission.security.TokenResolver;
@@ -13,6 +14,7 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -27,6 +29,7 @@ import java.util.Base64;
 
 @Slf4j
 @RequiredArgsConstructor
+@Primary
 @Component
 public class CoreTokenResolver implements TokenResolver {
 
@@ -40,10 +43,14 @@ public class CoreTokenResolver implements TokenResolver {
         Jws<Claims> claimsJws = validateToken(accessToken);
         Claims body = claimsJws.getBody();
         Object authorities = body.get("authorities");
+        log.debug("authorities: [{}]", authorities);
         String subject = body.getSubject();
         UserDetails userDetails = userDetailsService.loadUserByUsername(subject);
         if (userDetails instanceof CoreUserDetails coreUser) {
-
+            //TODO:
+            SubmissionUser submissionUser = coreUser.getSubmissionUser();
+            log.debug("submissionUser: [{}]", submissionUser);
+            return new CoreAuthenticationToken(coreUser, coreUser.getAuthorities());
         }
         return new CoreAuthenticationToken(userDetails, userDetails.getAuthorities());
     }
@@ -58,20 +65,8 @@ public class CoreTokenResolver implements TokenResolver {
         try {
             PublicKey publicKey = getPublicKey();
             return Jwts.parser().setSigningKey(publicKey).parseClaimsJws(accessToken);
-        } catch (SignatureException ex) {
-            log.error("Invalid JWT signature", ex);
-        } catch (MalformedJwtException ex) {
-            log.error("Invalid JWT token", ex);
-        } catch (ExpiredJwtException ex) {
-            log.error("Expired JWT token", ex);
-        } catch (UnsupportedJwtException ex) {
-            log.error("Unsupported JWT token", ex);
-        } catch (IllegalArgumentException ex) {
-            log.error("JWT claims string is empty.", ex);
-        } catch (NoSuchAlgorithmException e) {
-            log.error("No such algorithm", e);
-        } catch (InvalidKeySpecException e) {
-            log.error("invalid key spec", e);
+        } catch (Exception ex) {
+            log.error("Invalid JWTs", ex);
         }
         return null;
     }

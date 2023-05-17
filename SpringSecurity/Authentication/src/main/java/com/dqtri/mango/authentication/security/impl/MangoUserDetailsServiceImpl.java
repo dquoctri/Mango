@@ -7,7 +7,7 @@ package com.dqtri.mango.authentication.security.impl;
 
 import com.dqtri.mango.authentication.model.CoreUser;
 import com.dqtri.mango.authentication.repository.UserRepository;
-import com.dqtri.mango.authentication.security.CoreUserDetails;
+import com.dqtri.mango.authentication.security.MangoUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
-public class CoreUserDetailsServiceImpl implements UserDetailsService {
+public class MangoUserDetailsServiceImpl implements UserDetailsService {
 
     private final UserRepository userRepository;
 
@@ -27,6 +27,6 @@ public class CoreUserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         CoreUser user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(String.format("Username not found: %s", email)));
-        return CoreUserDetails.create(user);
+        return MangoUserDetails.create(user);
     }
 }

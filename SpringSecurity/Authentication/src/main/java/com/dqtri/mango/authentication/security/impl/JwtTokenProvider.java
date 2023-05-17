@@ -27,7 +27,7 @@ import java.util.Date;
 
 @Component
 @RequiredArgsConstructor
-public class CoreTokenProvider implements TokenProvider {
+public class JwtTokenProvider implements TokenProvider {
 
     @Value("${authentication.auth.issuer}")
     private String issuer;

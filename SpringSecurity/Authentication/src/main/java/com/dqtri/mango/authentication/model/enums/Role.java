@@ -7,8 +7,6 @@ package com.dqtri.mango.authentication.model.enums;
 
 public enum Role {
     ADMIN,
-    SUBMITTER,
-    MANAGER,
-    SPECIALIST,
+    USER,
     NONE
 }

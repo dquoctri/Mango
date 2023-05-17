@@ -1,11 +1,13 @@
 package com.dqtri.mango.configuring.config;
 
+import com.dqtri.mango.configuring.model.Role;
 import com.dqtri.mango.configuring.security.CustomAuthenticationFilter;
 import com.dqtri.mango.configuring.security.UnauthorizedEntryPoint;
 import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -45,14 +47,18 @@ public class SecurityConfig {
                 .anonymous().disable()
                 .authorizeHttpRequests((requests) -> requests
 //                        .dispatcherTypeMatchers(DispatcherType.ASYNC, DispatcherType.FORWARD).permitAll()
+                                .requestMatchers(HttpMethod.OPTIONS).permitAll()
                                 .requestMatchers("/login").permitAll()
+                                .requestMatchers(HttpMethod.POST,"/submissions").hasRole(Role.SUBMITTER.name())
+                                .requestMatchers(HttpMethod.DELETE,"/submissions").denyAll()
+                                .requestMatchers("/submissions/*").hasAnyAuthority("Testing")
                                 .anyRequest().authenticated()
                 )
 
                 .formLogin().disable()
                 .httpBasic().disable()
                 .logout().disable()
-//                //https://docs.spring.io/spring-security/site/docs/4.2.1.RELEASE/reference/htmlsingle/#filter-ordering
+                //https://docs.spring.io/spring-security/site/docs/4.2.1.RELEASE/reference/htmlsingle/#filter-ordering
                 .addFilterBefore(authenticationFilter(http), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler()).and()
                 .exceptionHandling().accessDeniedHandler(accessDeniedHandler());

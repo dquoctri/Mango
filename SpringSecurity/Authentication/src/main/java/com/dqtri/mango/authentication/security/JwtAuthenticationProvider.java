@@ -18,7 +18,7 @@ import org.springframework.util.Assert;
 @Primary
 @RequiredArgsConstructor
 @Component
-public class CoreAuthenticationProvider implements AuthenticationProvider {
+public class JwtAuthenticationProvider implements AuthenticationProvider {
 
     private static final String BEARER = "Bearer ";
 
@@ -38,13 +38,13 @@ public class CoreAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return CoreAuthenticationToken.class.isAssignableFrom(authentication);
+        return JwtAuthenticationToken.class.isAssignableFrom(authentication);
     }
 
     private void validate(Authentication authentication) {
         Assert.notNull(authentication, "Authentication is missing");
         Assert.notNull(authentication.getPrincipal(), "Authentication principal is missing");
-        Assert.isInstanceOf(CoreAuthenticationToken.class, authentication, "Only Accepts Core Token");
+        Assert.isInstanceOf(JwtAuthenticationToken.class, authentication, "Only Accepts Core Token");
         Assert.isTrue(authentication.getName().startsWith(BEARER), "Only Accepts Bearer Token");
     }
 }
