@@ -21,24 +21,20 @@ public class CsrfCookieEnabledIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void givenNoCsrf_whenAddSubmission_thenForbidden() throws Exception {
-        // @formatter:off
         mvc.perform(post("/submissions")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(createSubmissionPayloadJson())
                         .with(mockSubmitterUser()))
                 .andExpect(status().isForbidden());
-        // @formatter:on
     }
 
     @Test
     public void givenCsrf_whenAddSubmission_thenCreated() throws Exception {
-        // @formatter:off
         mvc.perform(post("/submissions")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(createSubmissionPayloadJson())
                         .with(mockSubmitterUser())
                         .with(csrf()))
                 .andExpect(status().isCreated());
-        // @formatter:on
     }
 }

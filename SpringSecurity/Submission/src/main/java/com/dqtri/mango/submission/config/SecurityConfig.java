@@ -47,6 +47,7 @@ public class SecurityConfig {
                 .cors().and()
                 .anonymous().disable()
                 .authorizeHttpRequests((requests) -> requests
+//                        .requestMatchers("./lo")
                         .anyRequest().authenticated()
                 )
                 .formLogin().disable()

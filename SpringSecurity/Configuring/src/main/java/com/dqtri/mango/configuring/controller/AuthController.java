@@ -27,9 +27,11 @@ public class AuthController {
         if (!"submitter@mango.dqtri.com".equals(login.getEmail()) || !"submitter".equals(login.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+
         List<SimpleGrantedAuthority> simpleGrantedAuthorities = List.of(new SimpleGrantedAuthority("ROLE_SUBMITTER"));
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(login, null, simpleGrantedAuthorities);
+
         SecurityContext sc = SecurityContextHolder.getContext();
         sc.setAuthentication(authenticationToken);
         HttpSession session = request.getSession(true);

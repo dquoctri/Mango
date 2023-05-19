@@ -17,9 +17,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (!"submitter@mango.dqtri.com".equals(email)) {
             throw new UsernameNotFoundException(String.format("Username not found: %s", email));
         }
+        return new CustomUserDetails(createConfigUser());
+    }
+
+    private ConfigUser createConfigUser(){
         ConfigUser configUser = new ConfigUser();
         configUser.setEmail("submitter@mango.dqtri.com");
         configUser.setRole(Role.SUBMITTER);
-        return new CustomUserDetails(configUser);
+        return configUser;
     }
 }

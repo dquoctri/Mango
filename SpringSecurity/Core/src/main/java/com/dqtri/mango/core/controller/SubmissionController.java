@@ -36,7 +36,7 @@ public class SubmissionController {
     @Transactional(readOnly = true)
     @GetMapping("/submissions")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'SPECIALIST', 'SUBMITTER')")
-    public ResponseEntity<?> getSubmissions(@RequestParam(required = false) @Valid PageCriteria pageCriteria) {
+    public ResponseEntity<?> getSubmissions(@Valid PageCriteria pageCriteria) {
         Pageable pageable = pageCriteria.toPageable("pk");
         Page<Submission> all = submissionRepository.findAll(pageable);
         return ResponseEntity.ok(all);

@@ -41,7 +41,7 @@ public class UserController {
 
     @GetMapping("")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> getUsers(@RequestParam(required = false) @Valid PageCriteria pageCriteria
+    public ResponseEntity<?> getUsers(@Valid PageCriteria pageCriteria
     ) {
         Pageable pageable = pageCriteria.toPageable("pk");
         Page<CoreUser> users = userRepository.findAll(pageable);

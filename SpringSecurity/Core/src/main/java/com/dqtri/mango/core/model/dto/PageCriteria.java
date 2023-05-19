@@ -17,6 +17,6 @@ public final class PageCriteria {
 
     public Pageable toPageable(String sortProperties) {
         Sort sort = Sort.by(sortProperties);
-        return PageRequest.of(pageSize, pageNumber, sort);
+        return PageRequest.of(pageNumber, pageSize, sort);
     }
 }

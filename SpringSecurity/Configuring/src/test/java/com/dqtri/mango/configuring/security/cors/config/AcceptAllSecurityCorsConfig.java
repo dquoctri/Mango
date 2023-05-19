@@ -50,7 +50,6 @@ public class AcceptAllSecurityCorsConfig {
         config.setAllowedOriginPatterns(List.of("*"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowedMethods(List.of("*"));
-        config.setExposedHeaders(List.of("*"));
         config.setMaxAge(3600L);
         source.registerCorsConfiguration("/**", config);
         return source;

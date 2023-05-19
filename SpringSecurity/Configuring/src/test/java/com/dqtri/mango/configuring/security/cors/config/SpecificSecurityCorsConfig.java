@@ -48,7 +48,8 @@ public class SpecificSecurityCorsConfig {
 
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost:3000"));
-        config.setAllowedHeaders(List.of("Content-Type", "X-Frame-Options", "X-XSS-Protection", "X-Content-Type-Options", "Authorization"));
+        config.setAllowedHeaders(List.of("Content-Type", "X-Frame-Options", "X-XSS-Protection",
+                "X-Content-Type-Options", "Authorization"));
         config.setAllowedMethods(List.of("OPTIONS", "GET", "POST"));
         config.setExposedHeaders(List.of("ERROR_CODE"));
         config.setAllowCredentials(true);

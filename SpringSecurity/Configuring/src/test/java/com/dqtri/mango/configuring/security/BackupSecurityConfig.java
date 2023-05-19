@@ -1,10 +1,7 @@
-package com.dqtri.mango.configuring.config;
+package com.dqtri.mango.configuring.security;
 
 import com.dqtri.mango.configuring.model.Role;
-import com.dqtri.mango.configuring.security.CustomAuthenticationFilter;
-import com.dqtri.mango.configuring.security.UnauthorizedEntryPoint;
 import jakarta.servlet.Filter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -14,7 +11,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -31,22 +27,29 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@RequiredArgsConstructor
-public class SecurityConfig {
-    private final AuthenticationProvider authenticationProvider;
-    private final UserDetailsService userDetailsService;
+//@RequiredArgsConstructor
+public class BackupSecurityConfig {
+//    private final AuthenticationProvider authenticationProvider;
 
     @Bean
     public SecurityFilterChain authorizeFilterChain(HttpSecurity http) throws Exception {
         // @formatter:off
         http
                 .csrf().disable()
-                .cors().configurationSource(corsConfigurationSource()).and()
+                .cors().and()
+                .securityContext((securityContext) -> securityContext
+                        .requireExplicitSave(false)
+                )
+//                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .anonymous().disable()
                 .authorizeHttpRequests((requests) -> requests
-                    .requestMatchers("/login").permitAll()
-                    .requestMatchers(HttpMethod.POST,"/submissions").hasRole(Role.SUBMITTER.name())
-                    .anyRequest().authenticated()
+//                        .dispatcherTypeMatchers(DispatcherType.ASYNC, DispatcherType.FORWARD).permitAll()
+                                .requestMatchers(HttpMethod.OPTIONS).permitAll()
+                                .requestMatchers("/login").permitAll()
+                                .requestMatchers(HttpMethod.POST,"/submissions").hasRole(Role.SUBMITTER.name())
+                                .requestMatchers(HttpMethod.DELETE,"/submissions").denyAll()
+                                .requestMatchers("/submissions/*").hasAnyAuthority("Testing")
+                                .anyRequest().authenticated()
                 )
 
                 .formLogin().disable()
@@ -54,7 +57,6 @@ public class SecurityConfig {
                 .logout().disable()
                 //https://docs.spring.io/spring-security/site/docs/4.2.1.RELEASE/reference/htmlsingle/#filter-ordering
                 .addFilterBefore(authenticationFilter(http), UsernamePasswordAuthenticationFilter.class)
-//                .addFilterAfter(authenticationFilter(http), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler()).and()
                 .exceptionHandling().accessDeniedHandler(accessDeniedHandler());
 
@@ -81,8 +83,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
-        builder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
-        builder.authenticationProvider(authenticationProvider);
+//        builder.authenticationProvider(authenticationProvider);
         return builder.build();
     }
 

@@ -26,6 +26,6 @@ public abstract class AbstractIntegrationTest {
     }
 
     protected RequestPostProcessor mockSubmitterUser() {
-        return user("submitter").password("********").roles("SUBMITTER");
+        return user("submitter@mango.dqtri.com").password("********").roles("SUBMITTER");
     }
 }

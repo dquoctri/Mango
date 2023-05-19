@@ -19,7 +19,7 @@ repositories {
 }
 
 dependencies {
-	implementation 'com.google.guava:guava:19.0'
+	implementation 'com.google.guava:guava:31.1-jre'
 	implementation 'com.microsoft.graph:microsoft-graph:5.57.0'
 	implementation 'io.jsonwebtoken:jjwt:0.9.1'
 	implementation 'javax.xml.bind:jaxb-api:2.4.0-b180830.0359'

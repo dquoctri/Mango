@@ -43,6 +43,7 @@ public class AcceptAllCorsIntegrationTest extends AbstractIntegrationTest {
         mvc.perform(
                 options("/submissions")
                         .header("Access-Control-Request-Method", method)
+                        .header("Origin", "http://localhost:4200")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(createSubmissionPayloadJson())
                         .with(mockSubmitterUser())
@@ -54,6 +55,7 @@ public class AcceptAllCorsIntegrationTest extends AbstractIntegrationTest {
         mvc.perform(
                 put("/submissions/1")
                         .header("Access-Control-Request-Method", "PUT")
+                        .header("Origin", "http://localhost:4200")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(createSubmissionPayloadJson())
                         .with(mockSubmitterUser())

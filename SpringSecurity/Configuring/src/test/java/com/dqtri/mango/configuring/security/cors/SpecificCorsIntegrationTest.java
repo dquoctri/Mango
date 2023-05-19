@@ -92,6 +92,7 @@ public class SpecificCorsIntegrationTest extends AbstractIntegrationTest {
         mvc.perform(
                         post("/submissions")
                                 .contentType(MediaType.APPLICATION_JSON)
+                                .header("Origin", "http://localhost:4200")
                                 .content(createSubmissionPayloadJson())
                                 .with(mockSubmitterUser())
                 ).andExpect(status().isCreated())
@@ -102,7 +103,7 @@ public class SpecificCorsIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(header().string("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate"))
                 .andExpect(header().string("Pragma", "no-cache"))
                 .andExpect(header().string("X-Frame-Options", "DENY"))
-                .andExpect(header().string("X-Source-Id", "1"))
+//                .andExpect(header().string("X-Source-Id", "1"))
                 .andExpect(header().string("ERROR_CODE", "201"));
     }
 

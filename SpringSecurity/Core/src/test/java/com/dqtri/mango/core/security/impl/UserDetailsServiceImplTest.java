@@ -1,8 +1,17 @@
-package com.dqtri.mango.configuring.security;
+/*
+ * Copyright (c) 2023 Mango Family
+ * All rights reserved or may not! :)
+ */
 
-import com.dqtri.mango.configuring.model.Role;
+package com.dqtri.mango.core.security.impl;
+
+import com.dqtri.mango.core.model.enums.Role;
+import com.dqtri.mango.core.repository.UserRepository;
+import com.dqtri.mango.core.security.CoreUserDetails;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -11,18 +20,27 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@SpringBootTest(classes = {UserDetailsServiceImpl.class})
+@SpringBootTest(classes = {CoreUserDetailsServiceImpl.class})
 public class UserDetailsServiceImplTest {
-    UserDetailsService userDetailsService = new UserDetailsServiceImpl();
+
+    @Mock
+    UserRepository userRepository;
+
+    private UserDetailsService userDetailsService;
+
+    @BeforeEach
+    public void setup(){
+        userDetailsService = new CoreUserDetailsServiceImpl(userRepository);
+    }
 
     @Test
     public void loadUserByUsername_givenExistUsername_returnsConfigUser() {
         UserDetails userDetails = userDetailsService.loadUserByUsername("submitter@mango.dqtri.com");
         assertThat(userDetails).isNotNull();
-        assertThat(userDetails).isInstanceOf(CustomUserDetails.class);
-        CustomUserDetails customUserDetails = (CustomUserDetails)userDetails;
-        assertThat(customUserDetails.getConfigUser()).isNotNull();
-        assertThat(customUserDetails.getConfigUser().getRole()).isEqualTo(Role.SUBMITTER);
+        assertThat(userDetails).isInstanceOf(CoreUserDetails.class);
+        CoreUserDetails coreUserDetails = (CoreUserDetails)userDetails;
+        assertThat(coreUserDetails.getCoreUser()).isNotNull();
+        assertThat(coreUserDetails.getCoreUser().getRole()).isEqualTo(Role.SUBMITTER);
     }
 
     @Test

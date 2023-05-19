@@ -39,6 +39,8 @@ public class CoreTokenResolver implements TokenResolver {
     public Authentication verifyToken(String accessToken) {
         Jws<Claims> claimsJws = validateToken(accessToken);
         Claims body = claimsJws.getBody();
+        claimsJws.getHeader();
+        claimsJws.getSignature();
         Object authorities = body.get("authorities");
         String subject = body.getSubject();
         UserDetails userDetails = userDetailsService.loadUserByUsername(subject);

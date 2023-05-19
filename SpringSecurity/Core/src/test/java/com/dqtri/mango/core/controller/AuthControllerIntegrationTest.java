@@ -11,7 +11,6 @@ import com.dqtri.mango.core.model.dto.payload.RegisterPayload;
 import com.dqtri.mango.core.model.enums.Role;
 import com.dqtri.mango.core.repository.UserRepository;
 import com.dqtri.mango.core.security.TokenProvider;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -28,7 +27,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -56,35 +54,7 @@ public class AuthControllerIntegrationTest extends AbstractIntegrationTest {
     public void setup() {
 //        authenticationFilter = new CustomAuthenticationFilter(authenticationManager);
         passwordEncoder = new BCryptPasswordEncoder();
-
     }
-
-//    @Test
-//    public void register_givenUserCredentials_thenSuccess() throws Exception {
-//        when(userRepository.existsByEmail(anyString())).thenReturn(false);
-//        when(userRepository.save(any())).thenReturn(createCoreUser());
-//
-//        RegisterPayload registerPayload = createRegisterPayload();
-//        mvc.perform(post(REGISTER_ROUTE)
-//                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-//                        .content(createPayloadJson(registerPayload)))
-//                .andExpect(status().isOk());
-//    }
-//
-//    private RegisterPayload createRegisterPayload(){
-//        RegisterPayload registerPayload = new RegisterPayload();
-//        registerPayload.setEmail("newcomer@mango.dqtri.com");
-//        registerPayload.setPassword("newcomer");
-//        return registerPayload;
-//    }
-//
-//    private CoreUser createCoreUser(){
-//        CoreUser coreUser = new CoreUser();
-//        coreUser.setEmail("newcomer");
-//        coreUser.setPassword(passwordEncoder.encode("newcomer"));
-//        coreUser.setRole(Role.SUBMITTER);
-//        return coreUser;
-//    }
 
     @Nested
     class RegisterIntegrationTest {
@@ -119,7 +89,7 @@ public class AuthControllerIntegrationTest extends AbstractIntegrationTest {
 
         @ParameterizedTest
         @ValueSource(strings = {"invalidEmailFormat", "invalidEmailFormat@", "@invalidEmailFormat"})
-        public void register_givenNonEmailFormat_thenBadRequest(String invalidEmail) throws Exception {
+        public void register_givenInvalidEmailFormat_thenBadRequest(String invalidEmail) throws Exception {
             RegisterPayload registerPayload = new RegisterPayload();
             registerPayload.setEmail(invalidEmail);
             registerPayload.setPassword("mango");
@@ -131,6 +101,16 @@ public class AuthControllerIntegrationTest extends AbstractIntegrationTest {
 
         @Test
         public void register_givenNonPassword_thenBadRequest() throws Exception {
+            RegisterPayload registerPayload = new RegisterPayload();
+            registerPayload.setEmail("newcomer@mango.dqtri.com");
+            when(userRepository.existsByEmail(anyString())).thenReturn(false);
+            //then
+            assertBadRequest(registerPayload);
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"st", "", "       ", "more_than_24_characters_too_long_password"})
+        public void register_givenInvalidPasswordFormat_thenBadRequest() throws Exception {
             RegisterPayload registerPayload = new RegisterPayload();
             registerPayload.setEmail("newcomer@mango.dqtri.com");
             when(userRepository.existsByEmail(anyString())).thenReturn(false);
@@ -162,10 +142,25 @@ public class AuthControllerIntegrationTest extends AbstractIntegrationTest {
 
         private CoreUser createCoreUser(){
             CoreUser coreUser = new CoreUser();
-            coreUser.setEmail("newcomer");
+            coreUser.setEmail("newcomer@mango.dqtri.com");
             coreUser.setPassword(passwordEncoder.encode("newcomer"));
             coreUser.setRole(Role.SUBMITTER);
             return coreUser;
         }
+    }
+
+    @Nested
+    class LoginIntegrationTest {
+        private static final String REGISTER_ROUTE = "/login";
+
+        @Captor
+        ArgumentCaptor<CoreUser> userArgumentCaptor;
+
+        @BeforeEach
+        public void setup() {
+
+        }
+
+        //TODO:
     }
 }

@@ -55,11 +55,15 @@ public class DefaultCorsIntegrationTest extends AbstractIntegrationTest {
         mvc.perform(
                 options("/submissions")
                         .header("Access-Control-Request-Method", method)
+//                        .header("Origin", "http://localhost:9000")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(createSubmissionPayloadJson())
                         .with(mockSubmitterUser())
         ).andExpect(status().isOk());
     }
+
+//TODO: external call for POST
+//TODO: external call for "GET", "PUT", "DELETE", "PATH
 
     @Test
     public void givenPutMethod_whenCallSubmissionOptions_thenOK() throws Exception {
