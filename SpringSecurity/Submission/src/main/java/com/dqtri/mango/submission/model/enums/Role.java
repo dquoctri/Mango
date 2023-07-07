@@ -10,5 +10,5 @@ public enum Role {
     SUBMITTER,
     MANAGER,
     SPECIALIST,
-    INACTIVE
+    NONE
 }

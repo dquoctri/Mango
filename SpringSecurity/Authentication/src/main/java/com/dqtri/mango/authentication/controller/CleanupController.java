@@ -10,9 +10,7 @@ import com.dqtri.mango.authentication.audit.AuditAction;
 import com.dqtri.mango.authentication.exception.LockedException;
 import com.dqtri.mango.authentication.model.LoginAttempt;
 import com.dqtri.mango.authentication.model.SafeguardUser;
-import com.dqtri.mango.authentication.model.Submission;
 import com.dqtri.mango.authentication.repository.LoginAttemptRepository;
-import com.dqtri.mango.authentication.repository.SubmissionRepository;
 import com.dqtri.mango.authentication.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -28,7 +26,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -39,7 +36,6 @@ import java.util.Optional;
 public class CleanupController {
 
     private final UserRepository userRepository;
-    private final SubmissionRepository submissionRepository;
     private final LoginAttemptRepository loginAttemptRepository;
 
     @DeleteMapping
@@ -61,8 +57,6 @@ public class CleanupController {
         if ("admin1@dqtri.com".equalsIgnoreCase(email)){
             throw new LockedException("Cannot remove this user");
         }
-        List<Submission> submissions = submissionRepository.findAllBySubmitterEmail(email);
-        submissionRepository.deleteAll(submissions);
 
         Optional<SafeguardUser> byEmail = userRepository.findByEmail(email);
         byEmail.ifPresent(userRepository::delete);
@@ -82,22 +76,6 @@ public class CleanupController {
     public ResponseEntity<Void> cleanupLoginAttempt(@PathVariable String email) {
         Optional<LoginAttempt> byEmail = loginAttemptRepository.findByEmail(email);
         byEmail.ifPresent(loginAttemptRepository::delete);
-
-        return ResponseEntity.noContent().build();
-    }
-
-    @Operation(summary = "Cleanup testing submission", description = "Delete a testing submission.")
-    @AuthenticationApiResponses
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Successful cleanup a testing submission"),
-    })
-    @Transactional
-    @AuditAction("CLEANUP_SUBMISSION")
-    @DeleteMapping("/submissions/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> cleanupSubmissions(@PathVariable Long id) {
-        Optional<Submission> byId = submissionRepository.findById(id);
-        byId.ifPresent(submissionRepository::delete);
 
         return ResponseEntity.noContent().build();
     }

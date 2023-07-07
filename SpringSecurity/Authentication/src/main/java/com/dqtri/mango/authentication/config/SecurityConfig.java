@@ -82,7 +82,7 @@ public class SecurityConfig {
                 );
 
         // @formatter:on
-        return http.build();
+        return http.getOrBuild();
     }
 
     @Bean
@@ -108,7 +108,7 @@ public class SecurityConfig {
         builder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
         builder.authenticationProvider(accessAuthenticationProvider);
         builder.authenticationProvider(refreshAuthenticationProvider);
-        return builder.build();
+        return builder.getOrBuild();
     }
 
     public Filter accessAuthenticationFilter(HttpSecurity http) throws Exception {

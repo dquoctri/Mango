@@ -12,12 +12,13 @@ docker exec -it isubmit-mysql sh -c "mysql -uroot -proot125p -e 'create database
 
 ## 2. Postgres container
 ```
-docker run --name submission-postgres -p5432:5432 -e POSTGRES_DB=submission-postgres -e POSTGRES_PASSWORD=postgres -v core_postgres_pgdata:/var/lib/postgresql/data --restart always -d postgres:15.3
+docker run --name safeguard-postgres -p5432:5432 -e POSTGRES_DB=safeguard-postgres -e POSTGRES_PASSWORD=postgres -v safeguard_postgres_pgdata:/var/lib/postgresql/data --restart always -d postgres:15.3
 ```
 
 #### setup empty postgres database:
 ```
-docker exec -it submission-postgres sh -c "createdb -U postgres auth-postgres;"
+docker exec -it safeguard-postgres sh -c "createdb -U postgres authentication-postgres;"
+docker exec -it safeguard-postgres sh -c "createdb -U postgres submission-postgres;"
 ```
 ## 3. MSSQL container
 
