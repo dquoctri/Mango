@@ -17,7 +17,7 @@ public class Constant {
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String BEARER = "Bearer ";
-    public static final String BASIC = "Basic ";
+    public static final String BASIC_TOKEN_PREFIX = "Basic ";
 
     public static boolean isPreflightRequest(HttpServletRequest request) {
         return HttpMethod.OPTIONS.toString().equalsIgnoreCase(request.getMethod());
@@ -33,7 +33,7 @@ public class Constant {
             return false;
         }
 
-        if (accessToken.startsWith(BASIC)) {
+        if (accessToken.startsWith(BASIC_TOKEN_PREFIX)) {
             log.info("User logged with basic authentication");
             return false;
         }

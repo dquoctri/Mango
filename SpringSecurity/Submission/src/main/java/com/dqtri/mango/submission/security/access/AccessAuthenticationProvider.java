@@ -17,10 +17,10 @@ import org.springframework.util.Assert;
 
 import static com.dqtri.mango.submission.util.Constant.BEARER;
 
-
+@Component
 @Slf4j
 @RequiredArgsConstructor
-@Component
+@Qualifier("accessAuthenticationProvider")
 public class AccessAuthenticationProvider implements AuthenticationProvider {
 
     private final TokenResolver accessTokenResolver;

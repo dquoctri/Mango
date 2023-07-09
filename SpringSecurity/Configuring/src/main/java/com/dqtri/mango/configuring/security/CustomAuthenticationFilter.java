@@ -21,7 +21,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
     public static final String AUTHORIZATION_HEADER = "Authorization";
 
     private static final String BEARER = "Bearer ";
-    private static final String BASIC = "Basic ";
+    private static final String BASIC_TOKEN_PREFIX = "Basic ";
 
     private final AuthenticationManager authenticationManager;
 
@@ -59,7 +59,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             return false;
         }
 
-        if (accessToken.startsWith(BASIC)) {
+        if (accessToken.startsWith(BASIC_TOKEN_PREFIX)) {
             log.info("User logged with basic authentication");
             return false;
         }

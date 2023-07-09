@@ -15,6 +15,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -26,6 +27,7 @@ import static com.dqtri.mango.submission.util.Constant.validateToken;
 
 @Slf4j
 @RequiredArgsConstructor
+@Component
 public class AccessAuthenticationFilter extends OncePerRequestFilter {
     private final AuthenticationManager authenticationManager;
 

@@ -31,11 +31,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
@@ -45,9 +48,13 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -60,6 +67,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/auth")
@@ -74,6 +82,9 @@ public class AuthController {
     private final UserRepository userRepository;
     private final BlackListRefreshTokenRepository blackListRefreshTokenRepository;
     private final LoginAttemptRepository loginAttemptRepository;
+
+    private SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
+    private final SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
 
     @Value("${safeguard.auth.refresh.expirationInMs}")
     private long refreshExpirationInMs;
@@ -137,16 +148,23 @@ public class AuthController {
     })
     @AuditAction("LOGIN")
     @PostMapping(value = "/login", consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<AuthenticationResponse> login(@RequestBody @Valid LoginPayload login) {
+    public ResponseEntity<AuthenticationResponse> login(@RequestBody @Valid LoginPayload login,
+                                                        HttpServletRequest request, HttpServletResponse response) {
         validateLoginAttempt(login.getEmail());
         try {
             var authenticationToken = new UsernamePasswordAuthenticationToken(login.getEmail(), login.getPassword());
             Authentication authentication = authenticationManager.authenticate(authenticationToken);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+//            SecurityContext context = SecurityContextHolder.getContext();
+            SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
+            context.setAuthentication(authentication);
+            securityContextHolderStrategy.setContext(context);
+            securityContextRepository.saveContext(context, request, response);
             String refreshToken = refreshTokenProvider.generateToken(authentication);
             String accessToken = accessTokenProvider.generateToken(authentication);
             resetLoginAttempt(login.getEmail());
-            return ResponseEntity.ok(new AuthenticationResponse(refreshToken, accessToken));
+            return ResponseEntity.ok()
+                    .cacheControl(CacheControl.maxAge(60, TimeUnit.SECONDS))
+                    .body(new AuthenticationResponse(refreshToken, accessToken));
         } catch (AuthenticationException e){
             tryLoginAttempt(login.getEmail());
             throw e;

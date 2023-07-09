@@ -19,7 +19,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SubmissionPageCriteria extends PageCriteria {
-    @Schema(example = "AWAITING_APPROVAL")
+    @Schema(example = "DRAFT")
     private Status status;
     @Schema(example = "mango@dqtri.com")
     private String submitterEmail;

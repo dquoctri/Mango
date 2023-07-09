@@ -8,30 +8,39 @@ package com.dqtri.mango.submission.config;
 import com.dqtri.mango.submission.security.CustomUnauthorizedEntryPoint;
 import com.dqtri.mango.submission.security.ResourceOwnerEvaluator;
 import com.dqtri.mango.submission.security.access.AccessAuthenticationFilter;
-import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
+import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
+import org.springframework.security.authorization.AuthorizationEventPublisher;
+import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -44,25 +53,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final AuthenticationProvider accessAuthenticationProvider;
-
-    private final UserDetailsService userDetailsService;
-
     @Bean
-    public SecurityFilterChain authorizeFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        ApplicationContext context = http.getSharedObject(ApplicationContext.class);
+        HttpSessionRequestCache requestCache = new HttpSessionRequestCache();
+        requestCache.setMatchingRequestParameterName("continue");
         // @formatter:off
         http
-                //                .csrf().disable()
-//                .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-//                .cors().configurationSource(corsConfigurationSource())
-//                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//                .formLogin().disable()
-//                .httpBasic().disable()
-//                .logout().disable()
-//                .anonymous().disable()
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .requestCache((cache) -> cache.requestCache(requestCache))
                 .anonymous(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
@@ -72,14 +73,14 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
                 //https://docs.spring.io/spring-security/site/docs/4.2.1.RELEASE/reference/htmlsingle/#filter-ordering
-                .addFilterBefore(accessAuthenticationFilter(http), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(context.getBean(AccessAuthenticationFilter.class), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint(unauthorizedHandler())
                         .accessDeniedHandler(accessDeniedHandler())
                 );
 
         // @formatter:on
-        return http.getOrBuild();
+        return http.build();
     }
 
     @Bean
@@ -100,16 +101,12 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-        AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
-        builder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
-        builder.authenticationProvider(accessAuthenticationProvider);
-        return builder.getOrBuild();
-    }
-
-    public Filter accessAuthenticationFilter(HttpSecurity http) throws Exception {
-        AuthenticationManager authenticationManager = authenticationManager(http);
-        return new AccessAuthenticationFilter(authenticationManager);
+    public AuthenticationManager authenticationManagerBean(HttpSecurity http, AuthenticationProvider... providers) throws Exception {
+        AuthenticationManagerBuilder sharedObject = http.getSharedObject(AuthenticationManagerBuilder.class);
+        for (AuthenticationProvider provider : providers) {
+            sharedObject.authenticationProvider(provider);
+        }
+        return sharedObject.build();
     }
 
     @Bean
@@ -122,18 +119,42 @@ public class SecurityConfig {
         return new AccessDeniedHandlerImpl();
     }
 
-
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public static PasswordEncoder passwordEncoder() {
+        return NoOpPasswordEncoder.getInstance();
     }
-
 
     @Bean
     public MethodSecurityExpressionHandler expressionHandler() {
         var expressionHandler = new DefaultMethodSecurityExpressionHandler();
         expressionHandler.setPermissionEvaluator(new ResourceOwnerEvaluator());
         return expressionHandler;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(UserDetailsService.class)
+    public InMemoryUserDetailsManager inMemoryUserDetailsManager() {
+        String generatedPassword = passwordEncoder().encode("password");
+        return new InMemoryUserDetailsManager(User.withUsername("user")
+                .password(generatedPassword).roles("ROLE_USER").build());
+    }
+
+    /***
+     * https://docs.spring.io/spring-security/reference/servlet/authentication/events.html
+     * */
+    @Bean
+    @ConditionalOnMissingBean(AuthenticationEventPublisher.class)
+    public AuthenticationEventPublisher authenticationEventPublisher(ApplicationEventPublisher delegate) {
+        return new DefaultAuthenticationEventPublisher(delegate);
+    }
+
+    /***
+     * https://docs.spring.io/spring-security/reference/servlet/authorization/events.html
+     * */
+    @Bean
+    @ConditionalOnMissingBean(SpringAuthorizationEventPublisher.class)
+    public AuthorizationEventPublisher authorizationEventPublisher(ApplicationEventPublisher delegate) {
+        return new SpringAuthorizationEventPublisher(delegate);
     }
 
 }

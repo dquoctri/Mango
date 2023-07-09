@@ -16,6 +16,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -28,6 +29,7 @@ import static com.dqtri.mango.authentication.util.Constant.validateToken;
 
 @Slf4j
 @RequiredArgsConstructor
+@Component
 public class RefreshAuthenticationFilter extends OncePerRequestFilter {
     private final AuthenticationManager authenticationManager;
 
@@ -43,6 +45,7 @@ public class RefreshAuthenticationFilter extends OncePerRequestFilter {
                     Authentication authentication = authenticationManager.authenticate(refreshAuthenticationToken);
                     log.debug("Logging in with [{}]", authentication.getPrincipal());
                     SecurityContextHolder.getContext().setAuthentication(authentication);
+//                    SecurityContextHolder.s.getContext().
                 }
             } catch (ProviderNotFoundException e) {
                 log.error(e.getMessage());
