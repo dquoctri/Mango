@@ -31,8 +31,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -47,14 +45,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -83,14 +76,8 @@ public class AuthController {
     private final BlackListRefreshTokenRepository blackListRefreshTokenRepository;
     private final LoginAttemptRepository loginAttemptRepository;
 
-    private SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
-    private final SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
-
     @Value("${safeguard.auth.refresh.expirationInMs}")
     private long refreshExpirationInMs;
-
-    @Value("${safeguard.auth.login.maximum-failed-attempt}")
-    private int maxFailedAttempt;
 
     @Operation(summary = "Register by providing necessary registration details")
     @ApiResponses(value = {
@@ -112,7 +99,7 @@ public class AuthController {
         return ResponseEntity.ok(new UserResponse(saved));
     }
 
-    private void cleanLoginAttempt(String email){
+    private void cleanLoginAttempt(String email) {
         Optional<LoginAttempt> byEmail = loginAttemptRepository.findByEmail(email);
         byEmail.ifPresent(loginAttemptRepository::delete);
     }
@@ -148,62 +135,23 @@ public class AuthController {
     })
     @AuditAction("LOGIN")
     @PostMapping(value = "/login", consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<AuthenticationResponse> login(@RequestBody @Valid LoginPayload login,
-                                                        HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<AuthenticationResponse> login(@RequestBody @Valid LoginPayload login) {
         validateLoginAttempt(login.getEmail());
-        try {
-            var authenticationToken = new UsernamePasswordAuthenticationToken(login.getEmail(), login.getPassword());
-            Authentication authentication = authenticationManager.authenticate(authenticationToken);
-//            SecurityContext context = SecurityContextHolder.getContext();
-            SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
-            context.setAuthentication(authentication);
-            securityContextHolderStrategy.setContext(context);
-            securityContextRepository.saveContext(context, request, response);
-            String refreshToken = refreshTokenProvider.generateToken(authentication);
-            String accessToken = accessTokenProvider.generateToken(authentication);
-            resetLoginAttempt(login.getEmail());
-            return ResponseEntity.ok()
-                    .cacheControl(CacheControl.maxAge(60, TimeUnit.SECONDS))
-                    .body(new AuthenticationResponse(refreshToken, accessToken));
-        } catch (AuthenticationException e){
-            tryLoginAttempt(login.getEmail());
-            throw e;
-        }
+        var authenticationToken = new UsernamePasswordAuthenticationToken(login.getEmail(), login.getPassword());
+        Authentication authentication = authenticationManager.authenticate(authenticationToken);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String refreshToken = refreshTokenProvider.generateToken(authentication);
+        String accessToken = accessTokenProvider.generateToken(authentication);
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(60, TimeUnit.SECONDS))
+                .body(new AuthenticationResponse(refreshToken, accessToken));
     }
-
 
     private void validateLoginAttempt(String email) {
         Optional<LoginAttempt> byEmail = loginAttemptRepository.findByEmail(email);
         if (byEmail.isPresent() && byEmail.get().isLockout()) {
             throw new LoginFailedException(String.format("%s has been locked due to multiple failed login attempts", email));
         }
-    }
-
-    @Transactional
-    private void tryLoginAttempt(String email) {
-        LoginAttempt loginAttempt = loginAttemptRepository.findByEmail(email).orElse(new LoginAttempt(email));
-        if (maxFailedAttempt > 0 && loginAttempt.isLockout()) {
-            throw new LoginFailedException(String.format("%s has been locked due to multiple failed login attempts", email));
-        }
-        int nextFailedAttempt = loginAttempt.getFailedAttempts() + 1;
-        if (maxFailedAttempt > 0 && nextFailedAttempt >= maxFailedAttempt){
-            loginAttempt.setLockout(true);
-        }
-        loginAttempt.setFailedAttempts(nextFailedAttempt);
-        loginAttempt.setLastFailedTimestamp(new Date().getTime());
-        loginAttemptRepository.save(loginAttempt);
-    }
-
-    @Transactional
-    private void resetLoginAttempt(String email){
-        if (maxFailedAttempt <= 0) {
-            return;
-        }
-        LoginAttempt loginAttempt = loginAttemptRepository.findByEmail(email).orElse(new LoginAttempt(email));
-        loginAttempt.setFailedAttempts(0);
-        loginAttempt.setLockout(false);
-        loginAttempt.setLastFailedTimestamp(new Date().getTime());
-        loginAttemptRepository.save(loginAttempt);
     }
 
     @Operation(summary = "Generates a new access token")
