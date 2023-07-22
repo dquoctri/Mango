@@ -139,9 +139,12 @@ public class AuthController {
         validateLoginAttempt(login.getEmail());
         var authenticationToken = new UsernamePasswordAuthenticationToken(login.getEmail(), login.getPassword());
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
+
         String refreshToken = refreshTokenProvider.generateToken(authentication);
         String accessToken = accessTokenProvider.generateToken(authentication);
+
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.maxAge(60, TimeUnit.SECONDS))
                 .body(new AuthenticationResponse(refreshToken, accessToken));

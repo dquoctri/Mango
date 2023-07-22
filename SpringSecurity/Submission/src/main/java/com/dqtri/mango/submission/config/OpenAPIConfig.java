@@ -24,11 +24,11 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
         scheme = "Bearer",
         type = SecuritySchemeType.HTTP,
         in = SecuritySchemeIn.HEADER)
-@OpenAPIDefinition(info = @Info(title = "Safeguard API", version = "v1.0.0", description = "Sample RestAPIs application",
+@OpenAPIDefinition(info = @Info(title = "Submission API", version = "v1.0.0", description = "Sample RestAPIs application",
             contact = @Contact(email = "w.dquoctri@gmail.com", name = "Deadl!ne", url = "https://github.com/dquoctri"),
             license = @License(name = "Apache 2.0", url = "https://www.apache.org/licenses/LICENSE-2.0.html")),
-        externalDocs = @ExternalDocumentation(description = "Safeguard Wiki Documentation",
-                url = "https://github.com/dquoctri/SafeguardSpring/wiki")
+        externalDocs = @ExternalDocumentation(description = "Submission Wiki Documentation",
+                url = "https://github.com/dquoctri/Mango/wiki")
 )
 public class OpenAPIConfig {
 }

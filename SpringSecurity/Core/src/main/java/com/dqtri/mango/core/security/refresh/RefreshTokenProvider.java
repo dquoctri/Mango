@@ -51,6 +51,7 @@ public class RefreshTokenProvider implements TokenProvider {
         Date expiryDate = getRefreshExpiryDate();
         return Jwts.builder()
                 .setSubject(principal.getUsername())
+
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
                 .setIssuer(issuer)

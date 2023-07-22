@@ -15,12 +15,15 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
@@ -29,6 +32,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.RequestCacheConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -55,20 +59,15 @@ import java.util.List;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain authorizeFilterChain(HttpSecurity http) throws Exception {
+    @Order(1)
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         // @formatter:off
         ApplicationContext context = http.getSharedObject(ApplicationContext.class);
         HttpSessionRequestCache requestCache = new HttpSessionRequestCache();
 	    requestCache.setMatchingRequestParameterName("continue");
+
+
         http
-//                .csrf().disable()
-//                .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-//                .cors().configurationSource(corsConfigurationSource())
-//                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//                .formLogin().disable()
-//                .httpBasic().disable()
-//                .logout().disable()
-//                .anonymous().disable()
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 //https://docs.spring.io/spring-security/reference/servlet/authentication/session-management.html
@@ -96,6 +95,44 @@ public class SecurityConfig {
     }
 
     @Bean
+    public SecurityFilterChain mvcFilterChain(HttpSecurity http) throws Exception {
+        // @formatter:off
+//        http
+//                .csrf().disable()
+//                .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+//                .cors().configurationSource(corsConfigurationSource())
+//                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+//                .formLogin().disable()
+//                .httpBasic().disable()
+//                .logout().disable();
+
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(sampleConfigurationSource()))
+                //https://docs.spring.io/spring-security/reference/servlet/authentication/session-management.html
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .requestCache(RequestCacheConfigurer::disable)
+                .anonymous(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(requests -> requests
+                        .requestMatchers(HttpMethod.PUT, "/users", "/users/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/users")
+                        .hasAnyRole("ADMIN", "MANAGER", "SUBMITTER", "SPECIALIST")
+                        .anyRequest().authenticated()
+                )
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                //https://docs.spring.io/spring-security/reference/servlet/authentication/logout.html
+                .logout(AbstractHttpConfigurer::disable)
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint(unauthorizedHandler())
+                        .accessDeniedHandler(accessDeniedHandler())
+                );
+
+        // @formatter:on
+        return http.build();
+    }
+
+    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
@@ -113,9 +150,36 @@ public class SecurityConfig {
     }
 
     @Bean
+    public CorsConfigurationSource sampleConfigurationSource() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("*"));
+        config.setAllowedHeaders(List.of("Content-Type", "X-Frame-Options", "X-XSS-Protection",
+                "X-Content-Type-Options", "Strict-Transport-Security", "Authorization"));
+        config.setAllowedMethods(List.of("OPTIONS", "GET", "POST", "PUT"));
+        config.setExposedHeaders(List.of("ERROR_CODE"));
+        config.setAllowCredentials(false);
+        config.setMaxAge(0L);
+        source.registerCorsConfiguration("/users/**", config);
+        return source;
+    }
+
+//    @Bean
+//    public AuthenticationManager authenticationManagerBean(HttpSecurity http,
+//                                                           UserDetailsService userDetailsService,
+//                                                           AuthenticationProvider... providers) throws Exception {
+//        AuthenticationManagerBuilder sharedObject = http.getSharedObject(AuthenticationManagerBuilder.class);
+//        sharedObject.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+//        for (AuthenticationProvider provider : providers) {
+//            sharedObject.authenticationProvider(provider);
+//        }
+//        return sharedObject.build();
+//    }
+
+    @Bean
     @ConditionalOnMissingBean(DaoAuthenticationProvider.class)
     public DaoAuthenticationProvider authProvider(UserDetailsService userDetailsService) {
-//        CachingUserDetailsService cachingUserService = new CachingUserDetailsService(userDetailsService);
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
@@ -123,15 +187,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManagerBean(HttpSecurity http,
-                                                           UserDetailsService userDetailsService,
-                                                           AuthenticationProvider... providers) throws Exception {
-        AuthenticationManagerBuilder sharedObject = http.getSharedObject(AuthenticationManagerBuilder.class);
-        sharedObject.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
-        for (AuthenticationProvider provider : providers) {
-            sharedObject.authenticationProvider(provider);
-        }
-        return sharedObject.build();
+    public ProviderManager providerManager(AuthenticationProvider... providers){
+        return new ProviderManager(providers);
     }
 
     @Bean
